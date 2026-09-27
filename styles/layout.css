@@ -1,0 +1,101 @@
+.pages {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  padding: 0 0 40px;
+}
+
+.page {
+  width: 210mm;
+  height: 297mm;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 10px 40px rgb(0 0 0 / 0.35);
+}
+
+.page__layout {
+  display: grid;
+  grid-template-columns: 236px minmax(0, 1fr);
+  height: 100%;
+  font-family: var(--sans);
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--ink);
+}
+
+/* First in the DOM for ATS reading order, displayed on the right. */
+.page__main {
+  grid-column: 2;
+  grid-row: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 38px 36px 28px 34px;
+}
+
+.page__sidebar {
+  grid-column: 1;
+  grid-row: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  padding: 38px 22px 28px 26px;
+  background: var(--aside-bg);
+  color: var(--aside-fg);
+}
+
+.page__sidebar {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.page__sidebar--continued {
+  gap: 16px;
+}
+
+/* Margins, not gap: render.js moves blocks across pages. */
+.page__flow > * + * {
+  margin-top: 13px;
+}
+
+.page__flow > .section-title {
+  margin-top: 20px;
+}
+
+.page__flow > .section-title:first-child {
+  margin-top: 0;
+}
+
+.page__flow > .section-title + * {
+  margin-top: 13px;
+}
+
+.page__flow > .section-title + .entry--compact {
+  margin-top: 11px;
+}
+
+.page__flow > .entry--compact + .entry--compact {
+  margin-top: 10px;
+}
+
+@page {
+  size: A4;
+  margin: 0;
+}
+
+@media print {
+  .pages {
+    display: block;
+    padding: 0;
+  }
+
+  .page {
+    box-shadow: none;
+    break-after: page;
+  }
+
+  .page:last-child {
+    break-after: auto;
+  }
+}

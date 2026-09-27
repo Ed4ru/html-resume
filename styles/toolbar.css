@@ -1,0 +1,35 @@
+.toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 210mm;
+  margin: 0 auto;
+  padding: 14px 0;
+  font: 500 12px/1 var(--mono);
+  color: oklch(0.75 0.02 265);
+  background: #23263a;
+}
+
+.toolbar__button {
+  font: inherit;
+  color: var(--ink);
+  background: var(--aside-accent);
+  border: 0;
+  border-radius: 4px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.toolbar__warning {
+  color: #ffb4ab;
+}
+
+@media print {
+  .toolbar {
+    display: none;
+  }
+}

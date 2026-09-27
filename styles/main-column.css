@@ -1,0 +1,268 @@
+.header {
+  display: grid;
+  gap: 7px;
+}
+
+/* No text element is positioned: Chrome paints positioned elements last, which scrambles
+   the text order read by ATS. The prompt follows the name in the DOM and grid-row moves it up. */
+.prompt {
+  grid-row: 1;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: oklch(0.55 0.02 265);
+}
+
+.prompt__tilde {
+  color: oklch(0.55 0.15 155);
+}
+
+.prompt__cursor {
+  display: inline-block;
+  width: 6px;
+  height: 11px;
+  margin-left: 3px;
+  vertical-align: -1px;
+  background: var(--accent);
+}
+
+.header__name {
+  font-size: 38px;
+  line-height: 1;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  /* Without it, the tight letter-spacing makes PDF extractors drop the spaces between words. */
+  word-spacing: 0.05em;
+}
+
+.header--with-prompt .header__name {
+  grid-row: 2;
+}
+
+.header__headline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.header__title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.header__tag {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 500;
+  padding: 2px 7px;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  border-radius: 3px;
+}
+
+.header__summary {
+  margin-top: 4px;
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: var(--text);
+  text-wrap: pretty;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.section-title__index {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.section-title__heading {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.section-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--rule);
+}
+
+.entry {
+  --node: 9px;
+  --node-top: 5.25px; /* centered on the first title line (13px × 1.5) */
+  --next: 13px;
+  display: grid;
+  grid-template-columns: 9px minmax(0, 1fr);
+  column-gap: 10px;
+}
+
+.entry::before,
+.entry::after {
+  content: '';
+  grid-column: 1;
+  grid-row: 1;
+  justify-self: center;
+}
+
+.entry::before {
+  align-self: start;
+  width: var(--node);
+  height: var(--node);
+  margin-top: var(--node-top);
+  border: 1.5px solid var(--accent);
+  border-radius: 50%;
+  background: #fff;
+}
+
+.entry--current::before {
+  background: var(--accent);
+}
+
+.entry::after {
+  width: 1px;
+  margin-top: calc(var(--node-top) + var(--node) + 3px);
+  margin-bottom: calc(-1 * (var(--next) + var(--node-top) - 3px));
+  background: oklch(0.8 0.04 265);
+}
+
+.entry:last-child::after,
+.entry:has(+ .section-title)::after {
+  margin-bottom: 0;
+}
+
+.entry--compact {
+  --node: 7px;
+  --node-top: 6.25px;
+  --next: 10px;
+}
+
+.entry--project {
+  --node-top: 5.5px; /* 12px × 1.5 */
+}
+
+.entry__body {
+  grid-column: 2;
+  grid-row: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.entry--compact .entry__body {
+  gap: 2px;
+}
+
+.entry--project .entry__body {
+  gap: 3px;
+}
+
+.entry__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.entry__title {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.entry__name {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.entry--project .entry__title {
+  font-size: 12px;
+}
+
+.entry__link {
+  font-family: var(--mono);
+  font-size: 10px;
+}
+
+.entry__dates {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--date);
+  white-space: nowrap;
+}
+
+/* Invisible dash so ATS parsers read a date range. Hiding it with overflow or opacity
+   would drop it from the PDF. */
+.ats-dash {
+  font-size: 0.01px;
+}
+
+.entry__org {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.entry__context {
+  font-size: 11px;
+  color: oklch(0.4 0.02 265);
+  font-style: italic;
+}
+
+.bullets {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.bullets__item {
+  display: flex;
+  gap: 8px;
+}
+
+.bullets__marker {
+  font-family: var(--mono);
+  color: var(--accent);
+}
+
+.bullets--small {
+  margin-top: 2px;
+  font-size: 11px;
+}
+
+.entry__note {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  color: var(--date);
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 2px;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  line-height: 1.6;
+}
+
+.tags__item {
+  padding: 1px 7px;
+  background: var(--tag-bg);
+  color: var(--tag-fg);
+  border-radius: 999px;
+}
+
+.entry__description {
+  font-size: 11px;
+  color: var(--text);
+  text-wrap: pretty;
+}

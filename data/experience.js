@@ -1,0 +1,68 @@
+export const experience = [
+  {
+    role: 'Regional Manager',
+    company: 'Dunder Mifflin',
+    location: 'Scranton, PA',
+    start: 'May 2013',
+    current: true,
+    context: 'Scranton branch of the paper distribution company.',
+    bullets: [
+      '**Promoted by CEO David Wallace** for loving paper more than anyone',
+      'Appointed Jim Halpert as **Assistant to the Regional Manager**',
+      'Named himself **Assistant to the Assistant to the Regional Manager**',
+    ],
+    stack: ['Management', 'B2B sales', 'Paper'],
+  },
+  {
+    role: 'Owner & Building Manager',
+    company: 'Scranton Business Park',
+    location: 'Scranton, PA',
+    start: 'Sep 2010',
+    current: true,
+    context: 'Office park at 1725 Slough Avenue, home of the Dunder Mifflin Scranton branch.',
+    bullets: [
+      'Bought the building on the advice of former CEO **Jo Bennett**',
+      'Turned the lobby into a **coffee shop** and an empty room into a **state-of-the-art gym**',
+    ],
+    stack: ['Real estate', 'Property management'],
+  },
+  {
+    role: 'Owner & Operator',
+    company: 'Schrute Farms',
+    location: 'Pennsylvania',
+    start: 'Jan 2004',
+    current: true,
+    context: 'Family beet farm, bed & breakfast and agritourism destination, run with cousin Mose.',
+    bullets: [
+      '**60-acre farm** inherited from his grandfather, expanded to **1,600 acres**',
+      'Themed guest rooms: **America, Irrigation, Nighttime**',
+      'Beets sold to local stores, restaurants and roadside stands',
+    ],
+    stack: ['Farming', 'Hospitality', 'Agritourism'],
+  },
+  {
+    role: 'Salesman & Assistant to the Regional Manager',
+    company: 'Dunder Mifflin',
+    location: 'Scranton, PA',
+    start: 'Apr 2001',
+    end: 'May 2013',
+    context: 'Regional paper distributor, acquired by Sabre in 2010.',
+    bullets: [
+      '**2005 Salesman of the Year**',
+      '**Assistant to the regional manager**, not assistant regional manager',
+      'Paired with Jim Halpert as a **traveling sales team**',
+      'Ran an **unannounced fire drill** using a real fire',
+    ],
+    stack: ['B2B sales', 'Prospecting', 'Negotiation'],
+  },
+  {
+    role: "Volunteer Sheriff's Deputy",
+    company: 'Lackawanna County',
+    start: '2005',
+    end: 'Apr 2006',
+    bullets: [
+      'Trained in the art of **surveillance**',
+      'Resigned after breaking his pledge to help his manager pass a **drug test**',
+    ],
+  },
+];

@@ -1,0 +1,204 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "html-resume/data/schema.json",
+  "title": "Resume data",
+  "description": "Data read by render.js: all exports of data/index.js, each defined in a data/ file (named in its description). Fields marked \"rich text\" accept **bold** (highlighted keyword) and → (rendered as an arrow).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["lang", "settings", "name", "title", "contact"],
+  "properties": {
+    "lang": {
+      "description": "File: settings.js. Language of the document (page lang attribute) and of the labels printed on the resume: section and sidebar titles, end of a current position. Data content is displayed as is.",
+      "enum": ["fr", "en"]
+    },
+    "settings": {
+      "description": "File: settings.js. Display options.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["showPrompt"],
+      "properties": {
+        "showPrompt": {
+          "description": "Shows the \"~ $ whoami\" line above the name.",
+          "type": "boolean"
+        },
+        "qr": {
+          "description": "QR code at the bottom of the sidebar, on every page. Absent, or without url: no QR code.",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "url": {
+              "description": "URL encoded in the QR code, which is generated at render time. The alt text is derived from it (\"QR code en.wikipedia.org/wiki/Dwight_Schrute\").",
+              "type": "string",
+              "format": "uri",
+              "examples": ["https://en.wikipedia.org/wiki/Dwight_Schrute"]
+            },
+            "label": { "description": "Caption shown next to the QR code.", "type": "string" }
+          }
+        }
+      }
+    },
+    "name": {
+      "description": "File: profile.js. Full name, main heading of the resume.",
+      "type": "string"
+    },
+    "title": {
+      "description": "File: profile.js. Target job title, below the name. First ATS filter: reuse the job posting's title.",
+      "type": "string"
+    },
+    "tag": {
+      "description": "File: profile.js. Short addition next to the title.",
+      "type": "string",
+      "examples": ["TypeScript · Full-stack"]
+    },
+    "summary": {
+      "description": "File: profile.js. Profile paragraph below the header. Rich text.",
+      "type": "string"
+    },
+    "contact": {
+      "description": "File: profile.js. Sidebar contact details, in display order.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["label", "value"],
+        "properties": {
+          "label": { "description": "Short label on the left.", "type": "string", "examples": ["email", "phone", "web"] },
+          "value": { "description": "Displayed value.", "type": "string" },
+          "href": { "description": "Link (https:, mailto:, tel:). Without a link, the value is plain text.", "type": "string" },
+          "accent": { "description": "Shows the link in the accent color.", "type": "boolean" }
+        }
+      }
+    },
+    "expertise": {
+      "description": "File: skills.js. Sidebar expertise, one line each. Rich text.",
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "stack": {
+      "description": "File: skills.js. Sidebar technologies, by group.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["label", "items"],
+        "properties": {
+          "label": { "description": "Group name.", "type": "string", "examples": ["sales", "farming"] },
+          "level": {
+            "description": "Level shown to the right of the group.",
+            "type": "string",
+            "examples": ["expert", "advanced"]
+          },
+          "items": {
+            "description": "Technologies in the group. A string, or an object with primary: true for a filled chip.",
+            "type": "array",
+            "items": {
+              "oneOf": [
+                { "type": "string" },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["name"],
+                  "properties": {
+                    "name": { "type": "string" },
+                    "primary": { "description": "Highlights the technology.", "type": "boolean" }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "languages": {
+      "description": "File: skills.js. Spoken languages, with a gauge.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "level", "value"],
+        "properties": {
+          "name": { "type": "string", "examples": ["English"] },
+          "level": { "description": "Displayed level.", "type": "string", "examples": ["C1 · family heritage"] },
+          "value": { "description": "Gauge length, in %.", "type": "number", "minimum": 0, "maximum": 100 }
+        }
+      }
+    },
+    "experience": {
+      "description": "File: experience.js. Experience section, most recent first. An entry is never split across two pages.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["role", "company", "start"],
+        "properties": {
+          "role": { "description": "Job title.", "type": "string" },
+          "company": { "description": "Company. Rich text.", "type": "string", "examples": ["Dunder Mifflin"] },
+          "location": { "type": "string", "examples": ["Scranton, PA", "Remote"] },
+          "start": { "description": "Start date, as displayed.", "type": "string", "examples": ["Apr 2001"] },
+          "end": {
+            "description": "End date, as displayed. When absent (and current absent or false), only the start date is shown. Ignored if current is true.",
+            "type": "string",
+            "examples": ["May 2013"]
+          },
+          "current": {
+            "description": "Current position: filled node in the timeline, and the end date is replaced by \"présent\" (lang 'fr') or \"present\" (lang 'en'), even if end is set.",
+            "type": "boolean"
+          },
+          "context": { "description": "One sentence about the company or product. Rich text.", "type": "string" },
+          "bullets": { "description": "Achievements, one bullet each. Rich text.", "type": "array", "items": { "type": "string" } },
+          "stack": { "description": "Technologies used, shown as tags.", "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "education": {
+      "description": "File: education.js. Education section, most recent first.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["degree", "school", "start"],
+        "properties": {
+          "degree": { "description": "Degree title.", "type": "string" },
+          "school": { "description": "School and city.", "type": "string" },
+          "start": { "type": "string", "examples": ["1988"] },
+          "end": { "type": "string", "examples": ["1992"] },
+          "level": { "description": "Level, shown after the dates.", "type": "string", "examples": ["Bachelor"] },
+          "items": {
+            "description": "Titles or specializations earned. A string (rich text), or a label with a subtle note.",
+            "type": "array",
+            "items": {
+              "oneOf": [
+                { "type": "string" },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["label"],
+                  "properties": {
+                    "label": { "description": "Rich text.", "type": "string" },
+                    "note": { "type": "string", "examples": ["certified"] }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "projects": {
+      "description": "File: projects.js. Personal projects section.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "description"],
+        "properties": {
+          "name": { "type": "string" },
+          "url": { "description": "Project link, displayed without https:// or www.", "type": "string" },
+          "year": { "type": "string", "examples": ["2005"] },
+          "description": { "description": "Rich text.", "type": "string" },
+          "stack": { "description": "Technologies used, shown as tags.", "type": "array", "items": { "type": "string" } }
+        }
+      }
+    }
+  }
+}
