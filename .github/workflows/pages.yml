@@ -1,0 +1,56 @@
+name: Deploy preview to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      # Version read from `packageManager` in package.json.
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+
+      # Production dependencies only: installs uqr, skips Puppeteer and its browser download.
+      - run: pnpm install --prod --frozen-lockfile
+
+      # index.html loads uqr from node_modules/ through its import map. The file is copied (not the
+      # pnpm symlink) to the same path so the import map works unchanged.
+      - name: Assemble site
+        run: |
+          mkdir -p _site/node_modules/uqr/dist
+          cp -r index.html styles.css styles render.js render data assets _site/
+          cp -L node_modules/uqr/dist/index.mjs _site/node_modules/uqr/dist/
+
+      - uses: actions/configure-pages@v6
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5
