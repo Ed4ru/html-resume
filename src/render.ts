@@ -1,4 +1,3 @@
-import * as resume from '../data/index.ts';
 import { buildMainColumnBlocks } from './render/main-column.ts';
 import { paginateIntoPages } from './render/pagination.ts';
 import { renderContinuationSidebar, renderFirstPageSidebar } from './render/sidebar.ts';
@@ -30,7 +29,7 @@ const reportSidebarOverflow = (overflowPx: number) => {
   console.warn('Sidebar too long by', overflowPx, 'px');
 };
 
-const renderResume = async (resume: Resume) => {
+export const renderResume = async (resume: Resume) => {
   applyDocumentMetadata(resume);
   await loadFonts();
 
@@ -47,5 +46,3 @@ const renderResume = async (resume: Resume) => {
   // Awaited by scripts/pdf.ts before printing.
   document.documentElement.dataset.ready = 'true';
 };
-
-void renderResume(resume);

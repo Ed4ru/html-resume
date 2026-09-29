@@ -185,7 +185,8 @@ src/
     index.ts            Assembles the modules into ResumeSchema, exports the types
     shared.ts           Rich text and tag list fields
     settings.ts, profile.ts, skills.ts, experience.ts, education.ts, projects.ts
-  render.ts             Rendering entry point: fonts, pagination, overflow warning
+  main.ts               Page entry point: renders the data of data/index.ts
+  render.ts             Renders a resume: fonts, pagination, overflow warning
   render/
     html-fragments.ts   HTML escaping, rich text, lists
     labels.ts           Labels printed on the resume, in French and English

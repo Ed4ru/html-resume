@@ -20,7 +20,7 @@ export const ResumeSchema = v.pipe(
   }),
   v.title('Resume data'),
   v.description(
-    'Data read by src/render.ts: all exports of data/index.ts, each defined in a data/ file (named in its description). Fields marked "rich text" accept **bold** (highlighted keyword) and → (rendered as an arrow, read as an ASCII hyphen in the PDF text).',
+    'Data read by src/main.ts: all exports of data/index.ts, each defined in a data/ file (named in its description). Fields marked "rich text" accept **bold** (highlighted keyword) and → (rendered as an arrow, read as an ASCII hyphen in the PDF text).',
   ),
 );
 
