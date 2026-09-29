@@ -1,3 +1,5 @@
+import type { Resume } from '../src/schema/index.ts';
+
 export const experience = [
   {
     role: 'Regional Manager',
@@ -65,4 +67,4 @@ export const experience = [
       'Resigned after breaking his pledge to help his manager pass a **drug test**',
     ],
   },
-];
+] satisfies NonNullable<Resume['experience']>;

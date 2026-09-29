@@ -1,3 +1,5 @@
+import type { Resume } from '../src/schema/index.ts';
+
 export const name = 'Dwight K. Schrute III';
 export const title = 'Regional Manager';
 export const tag = 'Paper · Beets';
@@ -11,4 +13,4 @@ export const contact = [
   { label: 'email', value: 'dwight@schrutefarms.example', href: 'mailto:dwight@schrutefarms.example' },
   { label: 'web', value: 'schrutefarms.example', href: 'https://schrutefarms.example', accent: true },
   { label: 'blog', value: 'schrute-space.example', href: 'https://schrute-space.example' },
-];
+] satisfies Resume['contact'];

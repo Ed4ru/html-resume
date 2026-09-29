@@ -1,2 +1,7 @@
 allowBuilds:
   puppeteer: true
+
+# Vite+ manual setup: other packages must use the Vite and Vitest copies shipped with vite-plus.
+overrides:
+  vite: npm:@voidzero-dev/vite-plus-core@latest
+  vitest: 5.0.1

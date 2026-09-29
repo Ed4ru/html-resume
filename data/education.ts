@@ -1,3 +1,5 @@
+import type { Resume } from '../src/schema/index.ts';
+
 export const education = [
   {
     degree: 'Goju-ryu Karate',
@@ -12,4 +14,4 @@ export const education = [
     start: '1988',
     end: '1992',
   },
-];
+] satisfies NonNullable<Resume['education']>;

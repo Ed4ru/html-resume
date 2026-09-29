@@ -17,33 +17,30 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      # The site does not need Puppeteer's browser.
+      PUPPETEER_SKIP_DOWNLOAD: 'true'
+      # The prepare script would install the Git hooks: not needed on CI.
+      VP_GIT_HOOKS: '0'
     steps:
       - uses: actions/checkout@v7
 
-      # Version read from `packageManager` in package.json.
-      - uses: pnpm/action-setup@v6
-
-      - uses: actions/setup-node@v7
+      # Installs Vite+, Node.js and the package manager, then runs `vp install` (run-install, on by
+      # default, spelled out here). cache only restores and saves the package manager's store.
+      - uses: voidzero-dev/setup-vp@v1.21.1
         with:
-          node-version: 22
-          cache: pnpm
+          node-version: '24'
+          run-install: true
+          cache: true
 
-      # Production dependencies only: installs uqr, skips Puppeteer and its browser download.
-      - run: pnpm install --prod --frozen-lockfile
-
-      # index.html loads uqr from node_modules/ through its import map. The file is copied (not the
-      # pnpm symlink) to the same path so the import map works unchanged.
-      - name: Assemble site
-        run: |
-          mkdir -p _site/node_modules/uqr/dist
-          cp -r index.html styles.css styles render.js render data assets _site/
-          cp -L node_modules/uqr/dist/index.mjs _site/node_modules/uqr/dist/
+      # Bundles the page, its styles, fonts and uqr into dist/.
+      - run: vp build
 
       - uses: actions/configure-pages@v6
 
       - uses: actions/upload-pages-artifact@v5
         with:
-          path: _site
+          path: dist
 
   deploy:
     needs: build

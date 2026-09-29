@@ -97,8 +97,9 @@
 }
 
 .entry {
+  /* The node is centered on the first title line: --node-top = (title line height - --node) / 2. */
   --node: 9px;
-  --node-top: 5.25px; /* centered on the first title line (13px × 1.5) */
+  --node-top: 5.25px; /* 13px title (19.5px line), 9px node */
   --next: 13px;
   display: grid;
   grid-template-columns: 9px minmax(0, 1fr);
@@ -141,12 +142,12 @@
 
 .entry--compact {
   --node: 7px;
-  --node-top: 6.25px;
+  --node-top: 6.25px; /* 13px title (19.5px line), 7px node */
   --next: 10px;
 }
 
 .entry--project {
-  --node-top: 5.5px; /* 12px × 1.5 */
+  --node-top: 5.5px; /* 12px title (18px line), 7px node */
 }
 
 .entry__body {

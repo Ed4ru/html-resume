@@ -1,3 +1,5 @@
+import type { Resume } from '../src/schema/index.ts';
+
 export const projects = [
   {
     name: 'Schrute-Space',
@@ -12,4 +14,4 @@ export const projects = [
     description: 'Reward currency created during his interim term as regional manager, worth $0.0001.',
     stack: ['Gamification', 'Management'],
   },
-];
+] satisfies NonNullable<Resume['projects']>;

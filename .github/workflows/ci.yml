@@ -1,0 +1,41 @@
+name: CI
+
+# Runs on every push to a branch, and on pull requests, including from forks. A pull request from a
+# branch of this repository runs twice: a job skipped by a condition would count as a passing
+# required check, so the duplicate is not filtered out. main is left out: the ruleset only lets
+# up-to-date branches that passed these checks be merged into it.
+on:
+  push:
+    branches-ignore: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    env:
+      # The checks do not generate a PDF: skip Puppeteer's browser download.
+      PUPPETEER_SKIP_DOWNLOAD: 'true'
+      # The prepare script would install the Git hooks: not needed on CI.
+      VP_GIT_HOOKS: '0'
+    steps:
+      - uses: actions/checkout@v7
+
+      # Installs Vite+, Node.js and the package manager, then runs `vp install` (run-install, on by
+      # default, spelled out here). cache only restores and saves the package manager's store.
+      - uses: voidzero-dev/setup-vp@v1.21.1
+        with:
+          node-version: '24'
+          run-install: true
+          cache: true
+
+      # Format, lint and type checks.
+      - run: vp check
+
+      # data/schema.json must match the Valibot schema in src/schema/.
+      - run: vp run schema --check
+
+      - run: vp build

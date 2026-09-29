@@ -1,22 +1,31 @@
 {
   "name": "html-resume",
-  "version": "1.1.0",
-  "description": "Generates an A4 PDF resume from data files, rendered with HTML and CSS",
+  "version": "2.0.0",
   "private": true,
+  "description": "Generates an A4 PDF resume from data files, rendered with HTML and CSS",
+  "license": "MIT",
   "type": "module",
   "scripts": {
-    "preview": "node scripts/preview.mjs",
-    "pdf": "node scripts/pdf.mjs"
+    "prepare": "vp config --no-agent",
+    "preview": "vp dev --open",
+    "pdf": "node scripts/pdf.ts",
+    "build": "vp build",
+    "check": "vp check",
+    "schema": "node scripts/generate-schema.ts"
   },
-  "engines": {
-    "node": ">=22.12.0"
-  },
-  "devDependencies": {
-    "puppeteer": "^25.12.0"
-  },
-  "packageManager": "pnpm@11.25.0",
   "dependencies": {
     "uqr": "^0.1.3"
   },
-  "license": "MIT"
+  "devDependencies": {
+    "@types/node": "^22.20.4",
+    "@valibot/to-json-schema": "^1.8.0",
+    "puppeteer": "^25.12.0",
+    "typescript": "^7.0.2",
+    "valibot": "^1.5.0",
+    "vite-plus": "^1.0.0"
+  },
+  "engines": {
+    "node": "^22.22.1 || ^24.11.0 || >=26.0.0"
+  },
+  "packageManager": "pnpm@11.25.0"
 }

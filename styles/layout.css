@@ -54,7 +54,7 @@
   gap: 16px;
 }
 
-/* Margins, not gap: render.js moves blocks across pages. */
+/* Margins, not gap: src/render/pagination.ts moves blocks across pages. */
 .page__flow > * + * {
   margin-top: 13px;
 }
