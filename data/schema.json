@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "html-resume/data/schema.json",
   "title": "Resume data",
-  "description": "Data read by render.js: all exports of data/index.js, each defined in a data/ file (named in its description). Fields marked \"rich text\" accept **bold** (highlighted keyword) and → (rendered as an arrow).",
+  "description": "Data read by render.js: all exports of data/index.js, each defined in a data/ file (named in its description). Fields marked \"rich text\" accept **bold** (highlighted keyword) and → (rendered as an arrow, read as an ASCII hyphen in the PDF text).",
   "type": "object",
   "additionalProperties": false,
   "required": ["lang", "settings", "name", "title", "contact"],

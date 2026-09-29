@@ -1,6 +1,6 @@
 const HTML_ESCAPES = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
 
-const DATE_ARROW = '<span class="ats-dash">–</span>→';
+const DATE_ARROW = '<span class="date-sep">-</span><span class="date-arrow"></span>';
 
 export const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, (character) => HTML_ESCAPES[character]);
 

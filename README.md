@@ -149,8 +149,9 @@ explained in comments in `styles/` and in the rendering code:
   design, PDF extractors would otherwise read the name as a single word.
 - **Bullets**: the bullet markers `›` and `▸` are real characters, not CSS drawings. An ATS reads
   them as ordinary bullets.
-- **Date ranges**: a tiny dash is placed before each arrow, so an ATS reads
-  `Apr 2001 – → May 2013` and recognizes a period. On screen, only the arrow is visible.
+- **Date ranges**: the separator is a real ASCII hyphen, transparent, so an ATS reads
+  `Apr 2001 - May 2013` and recognizes a period. The arrow is an empty element drawn over it with
+  a CSS mask, so it adds no text to the PDF. On screen, only the arrow is visible.
 
 ## Project structure
 
