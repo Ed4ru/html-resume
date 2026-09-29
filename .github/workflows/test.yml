@@ -17,4 +17,8 @@ jobs:
       # Also downloads the browser of Puppeteer (.puppeteerrc.json), which the e2e tests print with.
       - uses: ./.github/actions/setup
 
+      # Ubuntu 23.10+ keeps Chrome from creating the user namespaces of its sandbox: lifted on this
+      # disposable runner only (docs/security/apparmor-userns-restrictions.md in Chromium).
+      - run: echo 0 | sudo tee /proc/sys/kernel/apparmor_restrict_unprivileged_userns
+
       - run: vp test
