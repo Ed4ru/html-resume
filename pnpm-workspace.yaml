@@ -5,3 +5,7 @@ allowBuilds:
 overrides:
   vite: npm:@voidzero-dev/vite-plus-core@latest
   vitest: 5.0.1
+
+# Optional native canvas of pdfjs-dist, used to draw pages: the tests only read the PDF text.
+ignoredOptionalDependencies:
+  - '@napi-rs/canvas'

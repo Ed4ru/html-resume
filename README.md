@@ -45,6 +45,7 @@ This installs:
 | `pnpm preview` | Serves the resume at `http://localhost:5173` and opens it in the browser |
 | `pnpm pdf`     | Generates `out/CV-<name>.pdf`                                            |
 | `pnpm check`   | Checks formatting, lint rules and types                                  |
+| `pnpm test`    | Runs the unit tests, then the tests of the page and the PDF in Chrome    |
 | `pnpm schema`  | Regenerates `data/schema.json` from `src/schema/`                        |
 | `pnpm build`   | Builds the preview into `dist/`, as deployed to GitHub Pages             |
 
@@ -95,7 +96,8 @@ Each file in `data/` holds part of the resume. `data/index.ts` re-exports all of
 The files are TypeScript modules. Each key is a named export whose value is checked against the schema with
 `satisfies`: `pnpm check` reports a missing or misspelled field inside it, or a value of the wrong type. It does not
 check the export names themselves (a misspelled optional export, such as `expertize`, is ignored and its section is
-not rendered), nor the constraints that only exist at runtime (URL format, gauge between 0 and 100).
+not rendered), nor the constraints that only exist at runtime (URL format, gauge between 0 and 100): `pnpm test`
+checks both, by parsing the data with the schema.
 
 ```ts
 export const lang = 'en' satisfies Resume['lang'];
@@ -194,11 +196,15 @@ src/
     main-column.ts      Header and main column sections, as blocks
     pagination.ts       Splits the blocks across A4 pages
     sidebar-overflow.ts Measures how much the sidebar overflows
+  **/*.test.ts          Unit tests, next to the module they test
 scripts/
   pdf.ts                pnpm pdf
   font-check.ts         Fails the PDF generation when a text is drawn with a system font
   generate-schema.ts    pnpm schema
   assert-schema-staged.ts  Pre-commit: fails if src/schema/ has unstaged changes
+tests/
+  fixtures/             Test resumes, independent of data/
+  e2e/                  Tests of the page in Chrome and of the PDF text, as an ATS reads it
 index.html              Page served by Vite in the preview and the PDF generation, and built for GitHub Pages
 styles.css              Stylesheet entry point: imports every file in styles/
 styles/
@@ -210,17 +216,20 @@ styles/
   toolbar.css           Preview toolbar, hidden when printing
 assets/
   fonts/                Geist and Geist Mono, static instances
-vite.config.ts          Vite+ configuration: build, formatting (Oxfmt) and lint (Oxlint) rules
-tsconfig.json           TypeScript projects: tsconfig.app.json (page and data), tsconfig.node.json (scripts)
+vite.config.ts          Vite+ configuration: build, formatting (Oxfmt), lint (Oxlint) and test (Vitest) rules
+tsconfig.json           TypeScript projects: tsconfig.app.json (page and data), tsconfig.node.json (scripts),
+                        tsconfig.test.json (tests/)
 .github/actions/
   setup/                Installs Vite+, Node.js, pnpm and the dependencies, for every workflow
 .github/workflows/
-  ci.yml                Runs check.yml on pushes to branches other than main and on pull requests
+  ci.yml                Runs check.yml, then test.yml, on pushes to branches other than main and on pull requests
   check.yml             pnpm check, schema up to date, build
+  test.yml              pnpm test
   pages.yml             Deploys the built preview to GitHub Pages from main
 .vite-hooks/pre-commit  Git pre-commit hook: vp staged
 .puppeteerrc.json       Downloads only chrome-headless-shell
-pnpm-workspace.yaml     Allows Puppeteer's install script, points vite and vitest to Vite+
+pnpm-workspace.yaml     Allows Puppeteer's install script, points vite and vitest to Vite+, skips the
+                        native canvas of pdfjs-dist
 ```
 
 `out/` holds the generated PDFs and `dist/` the built preview. Neither is tracked by Git.
@@ -245,8 +254,8 @@ Set `VP_GIT_HOOKS=0` to skip it for one command, or run `vp hooks disable` to tu
 - Branch names start with a Conventional Commits type: `feat/`, `fix/`, `refactor/`, `docs/`, `test/`, `ci/`,
   `build/`, `chore/`, `perf/`, `style/` or `revert/`, followed by a short kebab-case name (`fix/date-separator`).
   GitHub rejects the push of a branch named otherwise.
-- A pull request can be merged once the `check / check` status of the CI passes and the branch is up to date with `main`, and
-  once every conversation is resolved.
+- A pull request can be merged once the `check / check` and `test / test` statuses of the CI pass, the branch is up
+  to date with `main`, and every conversation is resolved.
 - Pull requests are merged by rebase, so the history of `main` stays linear. Merged branches are deleted.
 - Force pushes to `main` and its deletion are blocked.
 

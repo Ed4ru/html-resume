@@ -15,6 +15,11 @@ permissions:
 
 jobs:
   # Each job runs a workflow of this directory, from the same commit. Its status is named
-  # `<job> / <job of the called workflow>`: `check / check`.
+  # `<job> / <job of the called workflow>`: `check / check`, `test / test`.
   check:
     uses: ./.github/workflows/check.yml
+
+  # Skipped if check fails.
+  test:
+    needs: check
+    uses: ./.github/workflows/test.yml

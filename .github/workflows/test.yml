@@ -1,0 +1,20 @@
+name: Test
+
+# Called by ci.yml, once check.yml has passed.
+on:
+  workflow_call:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      # The prepare script would install the Git hooks: not needed on CI.
+      VP_GIT_HOOKS: '0'
+    steps:
+      # The setup action is a file of the repository: it only exists once the repository is checked out.
+      - uses: actions/checkout@v7
+
+      # Also downloads the browser of Puppeteer (.puppeteerrc.json), which the e2e tests print with.
+      - uses: ./.github/actions/setup
+
+      - run: vp test
