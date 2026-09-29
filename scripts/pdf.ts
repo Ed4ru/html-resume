@@ -26,7 +26,9 @@ const server = await createServer({
   server: { host: '127.0.0.1', port: 0, hmr: false },
 });
 await server.listen();
-const browser = await puppeteer.launch({ headless: 'shell' });
+// Without it, headless Chrome on Linux places the glyphs with font hinting, and PDF extractors split
+// words in two ("Regiona l Ma na ger"). It changes nothing on macOS.
+const browser = await puppeteer.launch({ headless: 'shell', args: ['--font-render-hinting=none'] });
 
 try {
   const page = await browser.newPage();

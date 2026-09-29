@@ -1,6 +1,6 @@
 {
   "name": "html-resume",
-  "version": "2.0.5",
+  "version": "2.0.6",
   "private": true,
   "description": "Generates an A4 PDF resume from data files, rendered with HTML and CSS",
   "license": "MIT",

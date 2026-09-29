@@ -159,7 +159,7 @@ and is not rendered when it is missing or empty.
 ## ATS compatibility
 
 The PDF text must be readable by applicant tracking systems (ATS). The following choices are
-explained in comments in `styles/` and in the rendering code (`src/`):
+explained in comments in `styles/`, in the rendering code (`src/`) and in `scripts/pdf.ts`:
 
 - **Static fonts**: the Geist and Geist Mono fonts are static instances, one file per weight.
   Chrome embeds variable fonts as Type 3 fonts in PDFs and loses the spaces between words.
@@ -174,6 +174,9 @@ explained in comments in `styles/` and in the rendering code (`src/`):
 - **Date ranges**: the separator is a real ASCII hyphen, transparent, so an ATS reads
   `Apr 2001 - May 2013` and recognizes a period. The arrow is an empty element drawn over it with
   a CSS mask, so it adds no text to the PDF. On screen, only the arrow is visible.
+- **Font hinting**: `pnpm pdf` launches Chrome with `--font-render-hinting=none`. Without it, headless
+  Chrome on Linux places the glyphs with font hinting, and PDF extractors split words in two
+  (`Regiona l Ma na ger`). The option changes nothing on macOS.
 
 ## Project structure
 

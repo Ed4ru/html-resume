@@ -25,7 +25,8 @@ export default async function setup(project: TestProject) {
     throw err;
   };
   const url = server.resolvedUrls?.local[0] ?? (await fail(new Error('The Vite server did not report a local URL')));
-  const browser = await puppeteer.launch({ headless: 'shell' }).catch(fail);
+  // Same options as scripts/pdf.ts, so the tests print the same PDF.
+  const browser = await puppeteer.launch({ headless: 'shell', args: ['--font-render-hinting=none'] }).catch(fail);
 
   project.provide('previewUrl', url);
   project.provide('browserWSEndpoint', browser.wsEndpoint());
