@@ -200,30 +200,6 @@
   white-space: nowrap;
 }
 
-/* The date separator is a real ASCII hyphen at normal size, so ATS parsers read
-   `Apr 2001 - May 2013` on one line. It is made transparent, not hidden: overflow, opacity
-   or a tiny font size would drop it from the PDF or move it to another line. Its fixed width
-   (1ch of Geist Mono) keeps the arrow the same size in the dates and in sans-serif text. */
-.date-sep {
-  display: inline-block;
-  width: 0.6em;
-  text-align: center;
-  color: transparent;
-}
-
-/* The arrow is an empty element drawn over the hyphen, so it adds no text to the PDF. The
-   mask must never go on an element that holds text: it creates a stacking context, Chrome
-   paints it last, and its text moves to the end of the page in the extracted text. */
-.date-arrow {
-  display: inline-block;
-  width: 0.6em;
-  height: 1em;
-  margin-left: -0.6em;
-  vertical-align: -0.24em;
-  background-color: currentColor;
-  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M0.8 5h7.7M5.8 2.3 8.5 5 5.8 7.7' fill='none' stroke='black' stroke-width='1.1' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 100% no-repeat;
-}
-
 .entry__org {
   font-size: 11px;
   color: var(--muted);

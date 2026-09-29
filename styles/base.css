@@ -75,19 +75,24 @@ strong {
   font-family: var(--mono);
 }
 
-/* List markers: a real bullet, transparent, so ATS parsers read a standard bullet. The shape is
-   an empty element drawn over it with a mask (one modifier per shape), so it adds no text to the
-   PDF. The mask must never go on the element that holds the bullet: it creates a stacking
-   context, Chrome paints it last, and the bullet moves to the end of the page in the extracted
-   text. These rules assume the mono font of the markers, where the bullet is 0.6em wide. The
-   shape sits on the baseline and its SVG maps 1 unit to 0.1em (the baseline is at y=10):
-   shifting it with vertical-align instead makes Chrome round its position differently for each
-   font size. */
-.marker-bullet {
+/* Drawn characters (date arrow, list markers): a real character, transparent, so ATS parsers
+   read it (`Apr 2001 - May 2013`, a standard bullet). It is made transparent, not hidden:
+   overflow, opacity or a tiny font size would drop it from the PDF or move it to another line.
+   Its fixed width (1ch of Geist Mono) keeps each shape the same size in mono and sans-serif text.
+   The shape is an empty element drawn over it with a mask (one modifier per shape), so it adds
+   no text to the PDF. The mask must never go on the element that holds the text: it creates a
+   stacking context, Chrome paints it last, and the text moves to the end of the page in the
+   extracted text. The shape sits on the baseline and its SVG maps 1 unit to 0.1em (the baseline
+   is at y=10): shifting it with vertical-align instead makes Chrome round its position
+   differently for each font size. */
+.drawn-text {
+  display: inline-block;
+  width: 0.6em;
+  text-align: center;
   color: transparent;
 }
 
-.marker-shape {
+.drawn-shape {
   display: inline-block;
   width: 0.6em;
   height: 1em;
@@ -95,11 +100,15 @@ strong {
   background-color: currentColor;
 }
 
-.marker-shape--chevron {
+.drawn-shape--arrow {
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 6 10'%3E%3Cpath d='M0.48 7h4.62M3.48 5.38 5.1 7 3.48 8.62' fill='none' stroke='black' stroke-width='0.66' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") 0 0 / 100% 100% no-repeat;
+}
+
+.drawn-shape--chevron {
   -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 6 10'%3E%3Cpath d='M2.1 5.34 3.55 7.12 2.1 8.9' fill='none' stroke='black' stroke-width='0.81'/%3E%3C/svg%3E") 0 0 / 100% 100% no-repeat;
 }
 
-.marker-shape--triangle {
+.drawn-shape--triangle {
   -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 6 10'%3E%3Cpath d='M0.96 5.45 4.56 7.31 0.96 9.17Z'/%3E%3C/svg%3E") 0 0 / 100% 100% no-repeat;
 }
 

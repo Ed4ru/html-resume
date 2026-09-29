@@ -1,6 +1,10 @@
 const HTML_ESCAPES = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
 
-const DATE_ARROW = '<span class="date-sep">-</span><span class="date-arrow"></span>';
+// A real character kept as transparent text for ATS parsers, with a shape drawn over it by CSS.
+const renderDrawnCharacter = (text, shape) =>
+  `<span class="drawn-text">${text}</span><span class="drawn-shape drawn-shape--${shape}"></span>`;
+
+const DATE_ARROW = renderDrawnCharacter('-', 'arrow');
 
 export const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, (character) => HTML_ESCAPES[character]);
 
@@ -28,15 +32,12 @@ export const renderList = (items, block, renderItem = formatRichText, modifier) 
       `<ul class="${formatBlockClasses(block, modifier)}">${renderEach(items, (item) => `<li class="${block}__item">${renderItem(item)}</li>`)}</ul>`,
   );
 
-// Each marker holds a real, transparent bullet (•) so ATS parsers read a standard bullet. The
-// visible shape is drawn by CSS on a separate empty element (marker-shape--${shape}).
-const MARKER_BULLET = '<span class="marker-bullet">•</span>';
-
+// Each marker is a standard bullet (•) that ATS parsers read, under a drawn shape.
 export const renderMarkedList = (items, block, shape, renderItem = formatRichText, modifier) =>
   renderList(
     items,
     block,
-    (item) => `<span class="${block}__marker">${MARKER_BULLET}<span class="marker-shape marker-shape--${shape}"></span></span><span>${renderItem(item)}</span>`,
+    (item) => `<span class="${block}__marker">${renderDrawnCharacter('•', shape)}</span><span>${renderItem(item)}</span>`,
     modifier,
   );
 
