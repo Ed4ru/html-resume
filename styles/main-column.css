@@ -85,7 +85,9 @@
 .section-title__heading {
   font-size: 12px;
   font-weight: 700;
-  letter-spacing: 0.1em;
+  /* PDF extractors start a new word when two letters are more than 0.1em apart. From 0.1em on,
+     some pairs of letters cross it: "EDUCATIO N", "PROJ ECTS". */
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 

@@ -52,6 +52,7 @@ const printPdf = async (resume?: Resume) => {
 
 const sources: { name: string; resume: Resume; render: boolean }[] = [
   { name: 'test resume', resume, render: true },
+  { name: 'French test resume', resume: { ...resume, lang: 'fr' }, render: true },
   { name: 'data/', resume: { ...data }, render: false },
 ];
 
@@ -102,6 +103,14 @@ describe.each(sources)('PDF of the $name', ({ resume, render }) => {
   it.each(READINGS)('contains no drawn character (%s)', (reading) => {
     const text = pdf.pages.flatMap((page) => page[reading]).join('\n');
     for (const character of FORBIDDEN_CHARACTERS) expect(text).not.toContain(character);
+  });
+
+  it('keeps every word in one piece for pdftotext -layout', () => {
+    expect(pdf.pages.flatMap((page) => page.splitWords)).toEqual([]);
+  });
+
+  it('leaves a space pdftotext -raw reads between words', () => {
+    expect(pdf.pages.flatMap((page) => page.mergedWords)).toEqual([]);
   });
 
   it('reads the name first, then the main column, then the sidebar', () => {

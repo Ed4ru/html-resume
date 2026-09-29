@@ -12,11 +12,6 @@ import { openPreview, type Preview } from './preview.ts';
 // Same tolerance as src/render/pagination.ts.
 const MEASUREMENT_TOLERANCE_PX = 0.5;
 
-// pdftotext -raw only writes a space between two words more than 0.2 times the font size apart
-// (minDupBreakOverlap in Poppler's TextOutputDev.cc). Chrome places each glyph at its CSS position,
-// while Poppler measures the gap from the end of the glyph itself, without its letter-spacing.
-const RAW_WORD_BREAK_SPACE = 0.2;
-
 let preview: Preview;
 
 beforeEach(async () => {
@@ -66,50 +61,6 @@ describe('rendering', () => {
   it('draws accents, quotes and punctuation with the embedded fonts', async () => {
     await preview.render(specialCharactersResume);
     await expect(assertNoFallbackFonts(preview.page)).resolves.toBeUndefined();
-  });
-});
-
-// Words of the same text node whose space is too narrow for pdftotext -raw, which would merge them.
-const findMergedWords = () =>
-  preview.page.$eval(
-    '#cv',
-    (container, threshold) => {
-      const merged: string[] = [];
-      const measure = (node: Text, index: number) => {
-        const range = document.createRange();
-        range.setStart(node, index);
-        range.setEnd(node, index + 1);
-        return range.getBoundingClientRect();
-      };
-      const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT);
-      for (let node = walker.nextNode(); node; node = walker.nextNode()) {
-        const text = node as Text;
-        const style = getComputedStyle(text.parentElement!);
-        const fontSize = parseFloat(style.fontSize);
-        const letterSpacing = parseFloat(style.letterSpacing) || 0;
-        for (const { index } of text.data.matchAll(/(?<=\S) (?=\S)/g)) {
-          const before = measure(text, index - 1);
-          const after = measure(text, index + 1);
-          // The line wraps at this space.
-          if (Math.abs(after.top - before.top) > 1) continue;
-          if (after.left - before.right + letterSpacing <= threshold * fontSize) {
-            merged.push(text.data.slice(Math.max(0, index - 12), index + 13).trim());
-          }
-        }
-      }
-      return merged;
-    },
-    RAW_WORD_BREAK_SPACE,
-  );
-
-describe('word spacing', () => {
-  it('leaves a space pdftotext -raw reads between the words of data/', async () => {
-    expect(await findMergedWords()).toEqual([]);
-  });
-
-  it('leaves a space pdftotext -raw reads between the words of the test resume', async () => {
-    await preview.render(resume);
-    expect(await findMergedWords()).toEqual([]);
   });
 });
 

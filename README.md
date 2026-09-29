@@ -174,6 +174,9 @@ explained in comments in `styles/`, in the rendering code (`src/`) and in `scrip
 - **Date ranges**: the separator is a real ASCII hyphen, transparent, so an ATS reads
   `Apr 2001 - May 2013` and recognizes a period. The arrow is an empty element drawn over it with
   a CSS mask, so it adds no text to the PDF. On screen, only the arrow is visible.
+- **Section titles**: the capitals of the section titles are spaced by `0.08em`. PDF extractors
+  start a new word when two letters are more than `0.1em` apart, and some pairs of letters would
+  cross it with a wider spacing (`EDUCATIO N`).
 - **Font hinting**: `pnpm pdf` launches Chrome with `--font-render-hinting=none`. Without it, headless
   Chrome on Linux places the glyphs with font hinting, and PDF extractors split words in two
   (`Regiona l Ma na ger`). The option changes nothing on macOS.
