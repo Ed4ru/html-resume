@@ -62,6 +62,9 @@ pnpm pdf
   `Dwight K. Schrute III` gives `out/CV-Dwight-K-Schrute-III.pdf`.
 - The command waits for the page to finish rendering before printing.
 - It fails, without writing a PDF, if a file cannot be loaded or if the rendering throws an error.
+- It also fails, without writing a PDF, if a character is missing from the fonts in
+  `assets/fonts/`: Chrome would draw it with a system font, which changes from one machine to
+  another. The message names the character, the text it appears in and the system font.
 - It prints a warning if the sidebar overflows the first page (see [Layout](#layout)).
 
 ## Filling in the data
@@ -172,6 +175,7 @@ render/
 scripts/
   preview.mjs           pnpm preview
   pdf.mjs               pnpm pdf
+  font-check.mjs        Fails the PDF generation when a text is drawn with a system font
   server.mjs            Local static server used by both scripts
 index.html              Page loaded by the preview and by the PDF generation, with the import map
 styles.css              Stylesheet entry point: imports every file in styles/

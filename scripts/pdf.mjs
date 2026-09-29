@@ -5,6 +5,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import puppeteer from 'puppeteer';
 import { name } from '../data/index.js';
+import { assertNoFallbackFonts } from './font-check.mjs';
 import { startServer } from './server.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
@@ -41,6 +42,7 @@ try {
 
   await Promise.race([page.waitForSelector('html[data-ready="true"]', { timeout: 15_000 }), failed]);
   if (errors.length) throw await failed.catch((err) => err);
+  await assertNoFallbackFonts(page);
 
   mkdirSync(join(root, 'out'), { recursive: true });
   await page.pdf({ path: pdf, preferCSSPageSize: true, printBackground: true });
