@@ -14,28 +14,7 @@ permissions:
   contents: read
 
 jobs:
+  # Each job runs a workflow of this directory, from the same commit. Its status is named
+  # `<job> / <job of the called workflow>`: `check / check`.
   check:
-    runs-on: ubuntu-latest
-    env:
-      # The checks do not generate a PDF: skip Puppeteer's browser download.
-      PUPPETEER_SKIP_DOWNLOAD: 'true'
-      # The prepare script would install the Git hooks: not needed on CI.
-      VP_GIT_HOOKS: '0'
-    steps:
-      - uses: actions/checkout@v7
-
-      # Installs Vite+, Node.js and the package manager, then runs `vp install` (run-install, on by
-      # default, spelled out here). cache only restores and saves the package manager's store.
-      - uses: voidzero-dev/setup-vp@v1.21.1
-        with:
-          node-version: '24'
-          run-install: true
-          cache: true
-
-      # Format, lint and type checks.
-      - run: vp check
-
-      # data/schema.json must match the Valibot schema in src/schema/.
-      - run: vp run schema --check
-
-      - run: vp build
+    uses: ./.github/workflows/check.yml

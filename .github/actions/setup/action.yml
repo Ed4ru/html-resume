@@ -1,0 +1,13 @@
+name: Setup
+description: Installs Vite+, Node.js and the package manager, then the dependencies
+
+runs:
+  using: composite
+  steps:
+    # Installs Vite+, Node.js and the package manager, then runs `vp install` (run-install, on by
+    # default, spelled out here). cache only restores and saves the package manager's store.
+    - uses: voidzero-dev/setup-vp@v1.21.1
+      with:
+        node-version: '24'
+        run-install: true
+        cache: true

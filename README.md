@@ -212,8 +212,11 @@ assets/
   fonts/                Geist and Geist Mono, static instances
 vite.config.ts          Vite+ configuration: build, formatting (Oxfmt) and lint (Oxlint) rules
 tsconfig.json           TypeScript projects: tsconfig.app.json (page and data), tsconfig.node.json (scripts)
+.github/actions/
+  setup/                Installs Vite+, Node.js, pnpm and the dependencies, for every workflow
 .github/workflows/
-  ci.yml                pnpm check, schema up to date, build, on pushes to branches other than main and on pull requests
+  ci.yml                Runs check.yml on pushes to branches other than main and on pull requests
+  check.yml             pnpm check, schema up to date, build
   pages.yml             Deploys the built preview to GitHub Pages from main
 .vite-hooks/pre-commit  Git pre-commit hook: vp staged
 .puppeteerrc.json       Downloads only chrome-headless-shell
@@ -242,7 +245,7 @@ Set `VP_GIT_HOOKS=0` to skip it for one command, or run `vp hooks disable` to tu
 - Branch names start with a Conventional Commits type: `feat/`, `fix/`, `refactor/`, `docs/`, `test/`, `ci/`,
   `build/`, `chore/`, `perf/`, `style/` or `revert/`, followed by a short kebab-case name (`fix/date-separator`).
   GitHub rejects the push of a branch named otherwise.
-- A pull request can be merged once the `check` job of the CI passes and the branch is up to date with `main`, and
+- A pull request can be merged once the `check / check` status of the CI passes and the branch is up to date with `main`, and
   once every conversation is resolved.
 - Pull requests are merged by rebase, so the history of `main` stays linear. Merged branches are deleted.
 - Force pushes to `main` and its deletion are blocked.
