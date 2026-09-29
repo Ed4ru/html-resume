@@ -47,7 +47,7 @@ const createExperienceBlock = (job, labels) => ({
     body: `
       <div class="entry__org"><strong>${formatRichText(job.company)}</strong>${renderIfPresent(job.location, () => ` · ${escapeHtml(job.location)}`)}</div>
       ${renderIfPresent(job.context, () => `<div class="entry__context">${formatRichText(job.context)}</div>`)}
-      ${renderMarkedList(job.bullets, 'bullets', '›')}
+      ${renderMarkedList(job.bullets, 'bullets', 'chevron')}
       ${renderTagList(job.stack)}`,
   }),
 });
@@ -65,7 +65,7 @@ const createEducationBlock = (educationEntry) => ({
       <span class="entry__dates">${formatDateRange(educationEntry.start, educationEntry.end)}${renderIfPresent(educationEntry.level, () => ` · ${escapeHtml(educationEntry.level)}`)}</span>`,
     body: `
       <span class="entry__org">${escapeHtml(educationEntry.school)}</span>
-      ${renderMarkedList(educationEntry.items?.map(normalizeEducationItem), 'bullets', '›', renderEducationItem, 'small')}`,
+      ${renderMarkedList(educationEntry.items?.map(normalizeEducationItem), 'bullets', 'chevron', renderEducationItem, 'small')}`,
   }),
 });
 

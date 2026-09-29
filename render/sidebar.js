@@ -17,7 +17,7 @@ const renderContactBlock = (contacts, labels) =>
   renderSidebarSection(labels.contactBlock, `<div class="contact">${renderEach(contacts, renderContact)}</div>`);
 
 const renderExpertiseBlock = (expertise, labels) =>
-  renderIfPresent(expertise, () => renderSidebarSection(labels.expertiseBlock, renderMarkedList(expertise, 'expertise', '▸')));
+  renderIfPresent(expertise, () => renderSidebarSection(labels.expertiseBlock, renderMarkedList(expertise, 'expertise', 'triangle')));
 
 const normalizeTechnology = (technology) => (typeof technology === 'string' ? { name: technology } : technology);
 

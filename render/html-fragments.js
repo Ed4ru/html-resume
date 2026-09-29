@@ -28,8 +28,16 @@ export const renderList = (items, block, renderItem = formatRichText, modifier) 
       `<ul class="${formatBlockClasses(block, modifier)}">${renderEach(items, (item) => `<li class="${block}__item">${renderItem(item)}</li>`)}</ul>`,
   );
 
-// Markers are real characters, not CSS, so ATS parsers read them as bullets.
-export const renderMarkedList = (items, block, marker, renderItem = formatRichText, modifier) =>
-  renderList(items, block, (item) => `<span class="${block}__marker">${marker}</span><span>${renderItem(item)}</span>`, modifier);
+// Each marker holds a real, transparent bullet (•) so ATS parsers read a standard bullet. The
+// visible shape is drawn by CSS on a separate empty element (marker-shape--${shape}).
+const MARKER_BULLET = '<span class="marker-bullet">•</span>';
+
+export const renderMarkedList = (items, block, shape, renderItem = formatRichText, modifier) =>
+  renderList(
+    items,
+    block,
+    (item) => `<span class="${block}__marker">${MARKER_BULLET}<span class="marker-shape marker-shape--${shape}"></span></span><span>${renderItem(item)}</span>`,
+    modifier,
+  );
 
 export const renderTagList = (items) => renderList(items, 'tags', escapeHtml);

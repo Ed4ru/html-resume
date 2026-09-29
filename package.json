@@ -1,6 +1,6 @@
 {
   "name": "html-resume",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Generates an A4 PDF resume from data files, rendered with HTML and CSS",
   "private": true,
   "type": "module",
