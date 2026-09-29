@@ -19,10 +19,14 @@ export default async function setup(project: TestProject) {
     server: { host: '127.0.0.1', port: 0, hmr: false },
   });
   await server.listen();
-  const browser = await puppeteer.launch({ headless: 'shell' });
+  // Vitest does not call the teardown when the setup fails: the open server would keep it running.
+  const fail = async (err: unknown): Promise<never> => {
+    await server.close();
+    throw err;
+  };
+  const url = server.resolvedUrls?.local[0] ?? (await fail(new Error('The Vite server did not report a local URL')));
+  const browser = await puppeteer.launch({ headless: 'shell' }).catch(fail);
 
-  const url = server.resolvedUrls?.local[0];
-  if (!url) throw new Error('The Vite server did not report a local URL');
   project.provide('previewUrl', url);
   project.provide('browserWSEndpoint', browser.wsEndpoint());
 
