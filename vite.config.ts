@@ -12,7 +12,7 @@ export default defineConfig({
   },
   // Run by the pre-commit hook (.vite-hooks/pre-commit) on the staged files.
   staged: {
-    // Keeps the committed contract in sync with the Valibot schema, unless src/schema/ has unstaged
+    // Keeps the committed data/schema.json in sync with the Valibot schema, unless src/schema/ has unstaged
     // changes that the regenerated file would include.
     'src/schema/**/*.ts': () => [
       'node scripts/assert-schema-staged.ts',
