@@ -26,14 +26,14 @@ export const levelOf = (message: string): Level | undefined => {
 
 export const nextVersion = (version: string, level: Level) => {
   const parts = /^(\d+)\.(\d+)\.(\d+)$/.exec(version);
-  if (!parts) throw new Error(`package.json: version ${version} on main is not X.Y.Z`);
+  if (!parts) throw new Error(`version ${version} is not X.Y.Z`);
   const [major, minor, patch] = [Number(parts[1]), Number(parts[2]), Number(parts[3])];
   if (level === 'major') return `${major + 1}.0.0`;
   if (level === 'minor') return `${major}.${minor + 1}.0`;
   return `${major}.${minor}.${patch + 1}`;
 };
 
-const describe = ({ sha, message }: Commit) => `${sha.slice(0, 7)} "${message.split('\n', 1)[0]}"`;
+const label = ({ sha, message }: Commit) => `${sha.slice(0, 7)} "${message.split('\n', 1)[0]}"`;
 
 export const checkPullRequest = ({
   title,
@@ -54,12 +54,12 @@ export const checkPullRequest = ({
   let strongest: { commit: Commit; level: Level } | undefined;
   for (const commit of commits) {
     const level = levelOf(commit.message);
-    if (!level) errors.push(`commit ${describe(commit)} is not "<type>: <description>"`);
+    if (!level) errors.push(`commit ${label(commit)} is not "<type>: <description>"`);
     else if (!strongest || LEVELS.indexOf(level) > LEVELS.indexOf(strongest.level)) strongest = { commit, level };
   }
   if (titleLevel && strongest && titleLevel !== strongest.level) {
     errors.push(
-      `title gives a ${titleLevel} version, but commit ${describe(strongest.commit)} gives a ${strongest.level}`,
+      `title gives a ${titleLevel} version, but commit ${label(strongest.commit)} gives a ${strongest.level}`,
     );
   }
 

@@ -44,15 +44,17 @@ describe('nextVersion', () => {
   });
 
   it.each(['2.0', '2.0.7-beta.1', 'v2.0.7'])('rejects %j', (version) => {
-    expect(() => nextVersion(version, 'patch')).toThrow(`version ${version} on main is not X.Y.Z`);
+    expect(() => nextVersion(version, 'patch')).toThrow(`version ${version} is not X.Y.Z`);
   });
 });
 
 describe('checkPullRequest', () => {
-  const commit = (message: string) => ({ sha: 'a1b2c3d4e5f6', message });
+  const commit = (sha: string, message: string) => ({ sha, message });
+  const feature = commit('a1b2c3d4e5f6', 'feat: add a section');
   const pullRequest = {
     title: 'feat: add a section',
-    commits: [commit('feat: add a section'), commit('fix: align it'), commit('test: cover it')],
+    // Newest first, as git log lists them: the strongest commit is not the first one.
+    commits: [commit('c3d4e5f6a1b2', 'test: cover it'), commit('b2c3d4e5f6a1', 'fix: align it'), feature],
     baseVersion: '2.0.7',
     headVersion: '2.1.0',
   };
@@ -70,11 +72,11 @@ describe('checkPullRequest', () => {
     [
       'a title stronger than every commit',
       { title: 'feat!: add a section' },
-      /^title gives a major version, but commit .* gives a minor$/,
+      /^title gives a major version, but commit a1b2c3d "feat: add a section" gives a minor$/,
     ],
     [
       'a breaking footer under a title without !',
-      { commits: [commit('feat: add a section\n\nBREAKING CHANGE: a field is renamed')] },
+      { commits: [commit('a1b2c3d4e5f6', 'feat: add a section\n\nBREAKING CHANGE: a field is renamed')] },
       /^title gives a minor version, but commit a1b2c3d "feat: add a section" gives a major$/,
     ],
     [
@@ -84,8 +86,8 @@ describe('checkPullRequest', () => {
     ],
     [
       'a commit that is not conventional',
-      { commits: [commit('feat: add a section'), commit('wip')] },
-      /^commit a1b2c3d "wip" is not/,
+      { commits: [commit('d4e5f6a1b2c3', 'wip'), feature] },
+      /^commit d4e5f6a "wip" is not/,
     ],
     [
       'a version left unchanged',

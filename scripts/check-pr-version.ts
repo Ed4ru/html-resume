@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
-// Run by .github/workflows/pr.yml on each pull request. The title comes from an environment variable: inserted in
-// the workflow's command line, a crafted title would be run as shell code.
+// Run by .github/workflows/pr.yml on each pull request.
 import { execFileSync } from 'node:child_process';
 import { errorMessage } from './cli.ts';
 import { checkPullRequest, type Commit } from './pr-version.ts';
@@ -14,10 +13,10 @@ const versionAt = (sha: string) => (JSON.parse(git('show', `${sha}:package.json`
 const readCommits = (from: string, to: string): Commit[] =>
   git('log', '-z', '--no-merges', '--format=%H%n%B', `${from}..${to}`)
     .split('\0')
-    .filter((record) => record.trim())
+    .filter(Boolean)
     .map((record) => {
       const newline = record.indexOf('\n');
-      return { sha: record.slice(0, newline), message: record.slice(newline + 1).trim() };
+      return { sha: record.slice(0, newline), message: record.slice(newline + 1) };
     });
 
 try {
