@@ -3,8 +3,8 @@
 Generates an A4 PDF resume from a JSON data file, rendered with TypeScript, HTML and CSS.
 [Preview of the example resume](https://ed4ru.github.io/html-resume/).
 
-The PDF is the deliverable: the HTML page is only a preview. The data is written by an external tool and this
-repository only renders it. `data/schema.json` is the contract between the two.
+Replace the data in `data/example.json` with yours and run `pnpm pdf`. The same page can be previewed and printed
+from a browser, and is published to GitHub Pages from `main`: a fork can host its resume online.
 
 ## Getting started
 
@@ -26,6 +26,8 @@ pnpm pdf --data ~/resume.json --out ~/Documents/resume.pdf
 - `--data`: the JSON data file, `data/example.json` by default.
 - `--out`: the PDF to write, `out/CV-<name>.pdf` by default. `pnpm pdf` prints its absolute path.
 - Relative paths are resolved from the directory the command is run from.
+- From a script or another tool: `pnpm --dir <repository> pdf --data <file> --out <file>`. It prints the path of the
+  PDF, and exits with code 1 on failure.
 - Invalid data is reported field by field: in the terminal by `pnpm pdf`, which then writes nothing, and on the page
   by the preview.
 
@@ -38,8 +40,9 @@ pnpm pdf --data ~/resume.json --out ~/Documents/resume.pdf
 
 ## Data
 
-One JSON file, validated against `data/schema.json`, which also describes the fields. `data/example.json` is a complete
-example. Start the file with `"$schema"` and the path to `data/schema.json` to get completion in editors.
+One JSON file, validated against `data/schema.json`, which also describes the fields. Edit `data/example.json`, or
+keep your file anywhere and pass it with `--data`. Start the file with `"$schema"` and the path to `data/schema.json`
+to get completion in editors.
 
 - Required keys: `lang` (`fr` or `en`, the language of the labels printed on the resume), `settings`, `name`, `title`
   and `contact`. A missing optional section is not rendered.

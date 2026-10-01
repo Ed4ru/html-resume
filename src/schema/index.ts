@@ -1,6 +1,6 @@
 // Source of truth for the resume data, split into one module per part of the resume. The types
-// used by the rendering code are inferred from it, and data/schema.json, the contract with the
-// tool that writes the data, is generated from it (pnpm schema).
+// used by the rendering code are inferred from it, and data/schema.json, which validates and
+// documents the data files (editors use it through $schema), is generated from it (pnpm schema).
 import * as v from 'valibot';
 import { educationEntries } from './education.ts';
 import { experienceEntries } from './experience.ts';
