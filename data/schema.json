@@ -3,13 +3,20 @@
   "$id": "html-resume/data/schema.json",
   "type": "object",
   "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Link to data/schema.json, for editors: completion and validation. Ignored by the rendering.",
+      "examples": [
+        "./schema.json"
+      ]
+    },
     "lang": {
       "enum": [
         "fr",
         "en"
       ],
       "type": "string",
-      "description": "File: settings.ts. Language of the document (page lang attribute) and of the labels printed on the resume: section and sidebar titles, end of a current position. Data content is displayed as is."
+      "description": "Language of the document (page lang attribute) and of the labels printed on the resume: section and sidebar titles, end of a current position. Data content is displayed as is."
     },
     "settings": {
       "type": "object",
@@ -42,26 +49,26 @@
         "showPrompt"
       ],
       "additionalProperties": false,
-      "description": "File: settings.ts. Display options."
+      "description": "Display options."
     },
     "name": {
       "type": "string",
-      "description": "File: profile.ts. Full name, main heading of the resume."
+      "description": "Full name, main heading of the resume."
     },
     "title": {
       "type": "string",
-      "description": "File: profile.ts. Target job title, below the name. First ATS filter: reuse the job posting's title."
+      "description": "Target job title, below the name. First ATS filter: reuse the job posting's title."
     },
     "tag": {
       "type": "string",
-      "description": "File: profile.ts. Short addition next to the title.",
+      "description": "Short addition next to the title.",
       "examples": [
         "TypeScript · Full-stack"
       ]
     },
     "summary": {
       "type": "string",
-      "description": "File: profile.ts. Profile paragraph below the header. Rich text."
+      "description": "Profile paragraph below the header. Rich text."
     },
     "contact": {
       "type": "array",
@@ -96,14 +103,14 @@
         ],
         "additionalProperties": false
       },
-      "description": "File: profile.ts. Sidebar contact details, in display order."
+      "description": "Sidebar contact details, in display order."
     },
     "expertise": {
       "type": "array",
       "items": {
         "type": "string"
       },
-      "description": "File: skills.ts. Sidebar expertise, one line each. Rich text."
+      "description": "Sidebar expertise, one line each. Rich text."
     },
     "stack": {
       "type": "array",
@@ -160,7 +167,7 @@
         ],
         "additionalProperties": false
       },
-      "description": "File: skills.ts. Sidebar technologies, by group."
+      "description": "Sidebar technologies, by group."
     },
     "languages": {
       "type": "array",
@@ -194,7 +201,7 @@
         ],
         "additionalProperties": false
       },
-      "description": "File: skills.ts. Spoken languages, with a gauge."
+      "description": "Spoken languages, with a gauge."
     },
     "experience": {
       "type": "array",
@@ -263,7 +270,7 @@
         ],
         "additionalProperties": false
       },
-      "description": "File: experience.ts. Experience section, most recent first. An entry is never split across two pages."
+      "description": "Experience section, most recent first. An entry is never split across two pages."
     },
     "education": {
       "type": "array",
@@ -335,7 +342,7 @@
         ],
         "additionalProperties": false
       },
-      "description": "File: education.ts. Education section, most recent first."
+      "description": "Education section, most recent first."
     },
     "projects": {
       "type": "array",
@@ -373,7 +380,7 @@
         ],
         "additionalProperties": false
       },
-      "description": "File: projects.ts. Personal projects section."
+      "description": "Personal projects section."
     }
   },
   "required": [
@@ -385,5 +392,5 @@
   ],
   "additionalProperties": false,
   "title": "Resume data",
-  "description": "Data read by src/main.ts: all exports of data/index.ts, each defined in a data/ file (named in its description). Fields marked \"rich text\" accept **bold** (highlighted keyword) and → (rendered as an arrow, read as an ASCII hyphen in the PDF text)."
+  "description": "JSON file passed to pnpm pdf and pnpm preview with --data (data/example.json by default). Fields marked \"rich text\" accept **bold** (highlighted keyword) and → (rendered as an arrow, read as an ASCII hyphen in the PDF text)."
 }

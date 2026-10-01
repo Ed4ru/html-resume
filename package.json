@@ -1,13 +1,13 @@
 {
   "name": "html-resume",
-  "version": "2.0.7",
+  "version": "3.0.0",
   "private": true,
-  "description": "Generates an A4 PDF resume from data files, rendered with HTML and CSS",
+  "description": "Generates an A4 PDF resume from a JSON data file, rendered with HTML and CSS",
   "license": "MIT",
   "type": "module",
   "scripts": {
     "prepare": "vp config --no-agent",
-    "preview": "vp dev --open",
+    "preview": "node scripts/preview.ts --open",
     "pdf": "node scripts/pdf.ts",
     "build": "vp build",
     "check": "vp check",

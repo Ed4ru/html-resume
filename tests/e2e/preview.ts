@@ -7,7 +7,7 @@ export interface Preview {
   // Page errors, failed requests and HTTP errors, as scripts/pdf.ts reports them.
   errors: string[];
   warnings: string[];
-  // Renders another resume in place of data/, as src/main.ts does.
+  // Renders another resume in place of the example data, as src/main.ts does.
   render: (resume: Resume) => Promise<void>;
   // Prints the page with the options of scripts/pdf.ts.
   pdf: () => Promise<Uint8Array>;
@@ -22,7 +22,7 @@ const RENDER_IN_PAGE = `async (resume) => {
   await renderResume(resume);
 }`;
 
-const waitUntilReady = (page: Page) => page.waitForSelector('html[data-ready="true"]', { timeout: 15_000 });
+export const waitUntilReady = (page: Page) => page.waitForSelector('html[data-ready="true"]', { timeout: 15_000 });
 
 export const openPreview = async (): Promise<Preview> => {
   const browser = await puppeteer.connect({ browserWSEndpoint: inject('browserWSEndpoint') });

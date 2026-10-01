@@ -24,7 +24,7 @@ export const settingsEntries = {
   lang: v.pipe(
     v.picklist(LANGUAGES),
     v.description(
-      'File: settings.ts. Language of the document (page lang attribute) and of the labels printed on the resume: section and sidebar titles, end of a current position. Data content is displayed as is.',
+      'Language of the document (page lang attribute) and of the labels printed on the resume: section and sidebar titles, end of a current position. Data content is displayed as is.',
     ),
   ),
   settings: v.pipe(
@@ -32,7 +32,7 @@ export const settingsEntries = {
       showPrompt: v.pipe(v.boolean(), v.description('Shows the "~ $ whoami" line above the name.')),
       qr: v.optional(QrSchema),
     }),
-    v.description('File: settings.ts. Display options.'),
+    v.description('Display options.'),
   ),
 };
 

@@ -1,6 +1,6 @@
-// Source of truth for the resume data, split like the files in data/. The types used by the
-// rendering code are inferred from it, and data/schema.json, the contract with the tool that
-// writes the data, is generated from it (pnpm schema).
+// Source of truth for the resume data, split into one module per part of the resume. The types
+// used by the rendering code are inferred from it, and data/schema.json, the contract with the
+// tool that writes the data, is generated from it (pnpm schema).
 import * as v from 'valibot';
 import { educationEntries } from './education.ts';
 import { experienceEntries } from './experience.ts';
@@ -11,6 +11,13 @@ import { skillsEntries } from './skills.ts';
 
 export const ResumeSchema = v.pipe(
   v.strictObject({
+    $schema: v.optional(
+      v.pipe(
+        v.string(),
+        v.description('Link to data/schema.json, for editors: completion and validation. Ignored by the rendering.'),
+        v.examples(['./schema.json']),
+      ),
+    ),
     ...settingsEntries,
     ...profileEntries,
     ...skillsEntries,
@@ -20,7 +27,7 @@ export const ResumeSchema = v.pipe(
   }),
   v.title('Resume data'),
   v.description(
-    'Data read by src/main.ts: all exports of data/index.ts, each defined in a data/ file (named in its description). Fields marked "rich text" accept **bold** (highlighted keyword) and → (rendered as an arrow, read as an ASCII hyphen in the PDF text).',
+    'JSON file passed to pnpm pdf and pnpm preview with --data (data/example.json by default). Fields marked "rich text" accept **bold** (highlighted keyword) and → (rendered as an arrow, read as an ASCII hyphen in the PDF text).',
   ),
 );
 

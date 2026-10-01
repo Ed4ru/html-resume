@@ -10,7 +10,7 @@ const ProjectSchema = v.strictObject({
 });
 
 export const projectsEntries = {
-  projects: v.optional(v.pipe(v.array(ProjectSchema), v.description('File: projects.ts. Personal projects section.'))),
+  projects: v.optional(v.pipe(v.array(ProjectSchema), v.description('Personal projects section.'))),
 };
 
 export type Project = v.InferOutput<typeof ProjectSchema>;

@@ -23,9 +23,7 @@ const EducationSchema = v.strictObject({
 });
 
 export const educationEntries = {
-  education: v.optional(
-    v.pipe(v.array(EducationSchema), v.description('File: education.ts. Education section, most recent first.')),
-  ),
+  education: v.optional(v.pipe(v.array(EducationSchema), v.description('Education section, most recent first.'))),
 };
 
 export type EducationItem = v.InferOutput<typeof EducationItemSchema>;

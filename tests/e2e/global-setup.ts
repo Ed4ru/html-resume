@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import puppeteer from 'puppeteer';
 import { createServer } from 'vite-plus';
 import type { TestProject } from 'vite-plus/test/node';
+import { DATA_FILE_ENV, EXAMPLE_DATA_FILE } from '../../scripts/resume-data.ts';
 
 declare module 'vite-plus/test' {
   export interface ProvidedContext {
@@ -13,6 +14,7 @@ declare module 'vite-plus/test' {
 }
 
 export default async function setup(project: TestProject) {
+  process.env[DATA_FILE_ENV] = EXAMPLE_DATA_FILE;
   const server = await createServer({
     root: fileURLToPath(new URL('../..', import.meta.url)),
     logLevel: 'silent',

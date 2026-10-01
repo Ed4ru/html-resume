@@ -42,14 +42,14 @@ const readPages = () =>
   );
 
 describe('rendering', () => {
-  it('renders data/ without errors, warnings or system fonts', async () => {
+  it('renders the example data without errors, warnings or system fonts', async () => {
     expect(preview.errors).toEqual([]);
     expect(preview.warnings).toEqual([]);
     expect((await readPages()).length).toBeGreaterThan(0);
     await expect(assertNoFallbackFonts(preview.page)).resolves.toBeUndefined();
   });
 
-  it('renders another resume in place of data/', async () => {
+  it('renders another resume in place of the example data', async () => {
     await preview.render(resume);
     expect(preview.errors).toEqual([]);
     expect(preview.warnings).toEqual([]);

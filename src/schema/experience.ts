@@ -32,9 +32,7 @@ export const experienceEntries = {
   experience: v.optional(
     v.pipe(
       v.array(ExperienceSchema),
-      v.description(
-        'File: experience.ts. Experience section, most recent first. An entry is never split across two pages.',
-      ),
+      v.description('Experience section, most recent first. An entry is never split across two pages.'),
     ),
   ),
 };
