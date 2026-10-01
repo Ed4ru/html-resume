@@ -51,8 +51,10 @@ to get completion in editors.
 
 ## Layout
 
-The main column flows over as many A4 pages as needed, without splitting a block. The full sidebar only fits on the
-first page: when it overflows, the preview and `pnpm pdf` warn about it.
+The main column flows over as many A4 pages as needed. An experience or education entry that does not fit is
+split between two of its list items, keeping at least one with its title and carrying at least two to the next page;
+otherwise, it moves whole to the next page. The full sidebar only fits on the first page: when it overflows, the
+preview and `pnpm pdf` warn about it.
 
 ## ATS compatibility
 

@@ -82,6 +82,24 @@ export const manyJobsResume = {
   experience: Array.from({ length: 14 }, (_, index) => createJob(index + 1)),
 } satisfies Resume;
 
+// One bullet per line, numbered to check their order across pages.
+export const LONG_JOB_BULLETS = Array.from({ length: 100 }, (_, index) => `Deal ${index + 1}: kept the account a year`);
+
+// A job taller than two pages, after a job that leaves part of the first page empty.
+export const longJobResume = {
+  ...resume,
+  experience: [
+    ...resume.experience.slice(0, 1),
+    {
+      role: 'Regional Manager',
+      company: 'Dunder Mifflin',
+      start: 'Jun 2020',
+      bullets: LONG_JOB_BULLETS,
+      stack: ['Management', 'B2B sales'],
+    },
+  ],
+} satisfies Resume;
+
 export const longSidebarResume = {
   ...resume,
   stack: Array.from({ length: 16 }, (_, index) => ({

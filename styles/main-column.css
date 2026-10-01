@@ -142,6 +142,15 @@
   margin-bottom: 0;
 }
 
+/* Rest of an entry split by src/render/pagination.ts: no node, the line runs from the top. */
+.entry--continued::before {
+  content: none;
+}
+
+.entry--continued::after {
+  margin-top: 0;
+}
+
 .entry--compact {
   --node: 7px;
   --node-top: 6.25px; /* 13px title (19.5px line), 7px node */

@@ -45,6 +45,7 @@ const formatJobDates = (job: Experience, labels: Labels) =>
 
 const createExperienceBlock = (job: Experience, labels: Labels): Block => ({
   className: job.current ? 'entry--current' : '',
+  splittable: true,
   html: renderEntry({
     head: `<h3 class="entry__title">${escapeHtml(job.role)}</h3><span class="entry__dates">${formatJobDates(job, labels)}</span>`,
     body: `
@@ -62,6 +63,7 @@ const renderEducationItem = ({ label, note }: { label: string; note?: string }) 
 
 const createEducationBlock = (educationEntry: Education): Block => ({
   className: 'entry--compact',
+  splittable: true,
   html: renderEntry({
     head: `
       <h3 class="entry__title">${escapeHtml(educationEntry.degree)}</h3>
