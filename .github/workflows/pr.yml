@@ -1,0 +1,38 @@
+name: Pull request
+
+# Pull requests are squash-merged: the title becomes the commit message on main. Checks that it matches the
+# strongest commit and that package.json holds the version it implies. Separate from ci.yml, which also runs on
+# pushes: there this job would be skipped, and a skipped job counts as a passing required check.
+on:
+  pull_request:
+    # edited: a changed title is checked again.
+    types: [opened, edited, synchronize, reopened]
+
+permissions:
+  contents: read
+
+# Two quick title edits start two runs: the status of the last one to finish would win.
+concurrency:
+  group: pr-version-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    steps:
+      # Every commit: those of the pull request and the one it started from on main.
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      # The check only needs Node.js, which runs its TypeScript files directly: no dependency to install.
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+
+      - run: node scripts/check-pr-version.ts
+        env:
+          # Through the environment: inserted in the command line, a crafted title would be run as shell code.
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}

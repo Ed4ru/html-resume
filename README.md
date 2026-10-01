@@ -252,6 +252,8 @@ scripts/
   font-check.ts         Fails the PDF generation when a text is drawn with a system font
   generate-schema.ts    pnpm schema
   assert-schema-staged.ts  Pre-commit: fails if src/schema/ has unstaged changes
+  pr-version.ts         Version rules of pull requests: level of a Conventional Commits message, next version
+  check-pr-version.ts   Checks the title, commits and version of a pull request (pr.yml)
 tests/
   fixtures/             Test resumes, independent of data/
   e2e/                  Tests of the page in Chrome and of the PDF text, as an ATS reads it
@@ -275,6 +277,7 @@ tsconfig.json           TypeScript projects: tsconfig.app.json (page), tsconfig.
   ci.yml                Runs check.yml, then test.yml, on pushes to branches other than main and on pull requests
   check.yml             pnpm check, schema up to date, build
   test.yml              pnpm test
+  pr.yml                Checks the title, commits and version of each pull request
   pages.yml             Deploys the built preview to GitHub Pages from main
 .vite-hooks/pre-commit  Git pre-commit hook: vp staged
 .puppeteerrc.json       Downloads only chrome-headless-shell
@@ -304,10 +307,31 @@ Set `VP_GIT_HOOKS=0` to skip it for one command, or run `vp hooks disable` to tu
 - Branch names start with a Conventional Commits type: `feat/`, `fix/`, `refactor/`, `docs/`, `test/`, `ci/`,
   `build/`, `chore/`, `perf/`, `style/` or `revert/`, followed by a short kebab-case name (`fix/date-separator`).
   GitHub rejects the push of a branch named otherwise.
-- A pull request can be merged once the `check / check` and `test / test` statuses of the CI pass, the branch is up
-  to date with `main`, and every conversation is resolved.
-- Pull requests are merged by rebase, so the history of `main` stays linear. Merged branches are deleted.
+- A pull request can be merged once the `check / check`, `test / test` and `version` statuses pass, the branch is
+  up to date with `main`, and every conversation is resolved.
+- Pull requests are squash-merged: each one becomes a single commit on `main`, whose message is the title of the pull
+  request. The history of `main` stays linear. Merged branches are deleted.
 - Force pushes to `main` and its deletion are blocked.
+
+### Versions
+
+Each pull request raises the version in `package.json` once, by the level of its title, which follows Conventional
+Commits like its commits:
+
+- a breaking change, marked by `!` before the colon (`feat!:`, `refactor(schema)!:`), on any type: major;
+- `feat`: minor;
+- any other type (`fix`, `perf`, `refactor`, `revert`, `docs`, `test`, `ci`, `build`, `chore`, `style`): patch.
+
+The `version` status (`.github/workflows/pr.yml`, `scripts/check-pr-version.ts`) blocks the merge until:
+
+- the title and every commit of the pull request follow Conventional Commits, merge commits aside;
+- the level of the title is the level of the strongest commit. In a commit, a `BREAKING CHANGE:` footer is a breaking
+  change too;
+- `package.json` holds the version of `main` where the branch started, raised by that level: `2.0.7` becomes `2.1.0`
+  for a `feat`.
+
+It runs again when the title is edited. Keep the title as the commit message when merging: the message can still be
+changed at that point, and nothing checks it then.
 
 ## License
 
