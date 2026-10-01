@@ -1,0 +1,34 @@
+name: Pull request
+
+# Pull requests are squash-merged: the title becomes the commit message on main. Checks that it matches the
+# strongest commit and that package.json holds the version it implies. Apart from ci.yml, which also runs on pushes:
+# there, the job skipped on a push would count as a passing required check.
+on:
+  pull_request:
+    # edited: a changed title is checked again.
+    types: [opened, edited, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    env:
+      # The check does not generate a PDF: skip Puppeteer's browser download.
+      PUPPETEER_SKIP_DOWNLOAD: 'true'
+      # The prepare script would install the Git hooks: not needed on CI.
+      VP_GIT_HOOKS: '0'
+    steps:
+      # Every commit: those of the pull request and the one it started from on main.
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/actions/setup
+
+      - run: node scripts/check-pr-version.ts
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
