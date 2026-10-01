@@ -1,6 +1,6 @@
 # html-resume
 
-Generates an A4 PDF resume from the data in `data/`, rendered with TypeScript, HTML and CSS.
+Generates an A4 PDF resume from a JSON data file, rendered with TypeScript, HTML and CSS.
 
 The PDF is the deliverable. The HTML page is only used to preview the resume in a browser.
 
@@ -53,10 +53,18 @@ This installs:
 
 ```sh
 pnpm preview
-pnpm preview --port 8080   # use another port
+pnpm preview --data ~/resume.json   # another data file
+pnpm preview --port 8080            # another port
 ```
 
-The page reloads by itself after a change to the data or the code. Press Ctrl+C to stop the server.
+- `--data <file>`: the data file, a `.json` file (see [Filling in the data](#filling-in-the-data)), `data/example.json` by
+  default.
+- `--port <port>`: the port of the server, 5173 by default.
+- Other options of `vp dev` are not accepted.
+
+The page reloads by itself after a change to the data file or the code. If the data does not match the schema, the
+page shows the errors in Vite's error overlay, one line per field, and reloads once the file is fixed. Press Ctrl+C
+to stop the server.
 
 The toolbar at the top of the preview has a **Print / PDF** button that opens the browser's
 print dialog.
@@ -65,10 +73,26 @@ print dialog.
 
 ```sh
 pnpm pdf
+pnpm pdf --data ~/resume.json --out ~/Documents/resume.pdf
 ```
 
-- `<name>` comes from `name` in `data/profile.ts`, without accents or special characters:
+- `--data <file>`: the data file, a `.json` file, `data/example.json` by default.
+- `--out <file>`: the PDF to write, a `.pdf` file, `out/CV-<name>.pdf` by default. Missing directories are created and
+  an existing file is overwritten. A directory is refused. The extensions are compared without case (`CV.PDF` is
+  accepted).
+- `<name>` comes from `name` in the data file, without accents or special characters:
   `Dwight K. Schrute III` gives `out/CV-Dwight-K-Schrute-III.pdf`.
+- On success, the command prints the absolute path of the PDF and exits with code 0. On failure, it prints the error
+  and exits with code 1.
+- It validates the data before starting the browser, and fails without writing a PDF if the data does not match the
+  schema. It lists every error, one per line, starting with the path of the field:
+
+  ```
+  settings.qr.url: Invalid URL: Received "example.com"
+  expertize: unknown field
+  name: missing required field
+  ```
+
 - The command serves the page with Vite, as the preview does, and waits for it to finish rendering before printing.
 - It fails, without writing a PDF, if a file cannot be loaded or if the rendering throws an error.
 - It also fails, without writing a PDF, if a character is missing from the fonts in
@@ -76,46 +100,63 @@ pnpm pdf
   another. The message names the character, the text it appears in and the system font.
 - It prints a warning if the sidebar overflows the first page (see [Layout](#layout)).
 
+### Paths and other directories
+
+Relative paths given to `--data` and `--out` are resolved from the directory the command is run from. A tool that
+runs the commands should pass absolute paths. From another directory, either form works:
+
+```sh
+pnpm --dir <repository> pdf --data resume.json
+node <repository>/scripts/pdf.ts --data resume.json
+```
+
 ## Filling in the data
 
-### Files
+### Data file
 
-Each file in `data/` holds part of the resume. `data/index.ts` re-exports all of them.
+The whole resume is one JSON file, passed with `--data`. `data/example.json` is an example: the commands use it when
+`--data` is absent, and the build deployed to GitHub Pages always uses it.
 
-| File                 | Keys                                         |
-| -------------------- | -------------------------------------------- |
-| `data/settings.ts`   | `lang`, `settings`                           |
-| `data/profile.ts`    | `name`, `title`, `tag`, `summary`, `contact` |
-| `data/skills.ts`     | `expertise`, `stack`, `languages`            |
-| `data/experience.ts` | `experience`                                 |
-| `data/education.ts`  | `education`                                  |
-| `data/projects.ts`   | `projects`                                   |
+| Key                               | Content                                      |
+| --------------------------------- | -------------------------------------------- |
+| `$schema`                         | Link to `data/schema.json`, for editors      |
+| `lang`                            | Language of the labels printed on the resume |
+| `settings`                        | Display options: `whoami` line, QR code      |
+| `name`, `title`, `tag`, `summary` | Header                                       |
+| `contact`                         | Sidebar contact details                      |
+| `expertise`, `stack`, `languages` | Sidebar blocks                               |
+| `experience`                      | Experience section                           |
+| `education`                       | Education section                            |
+| `projects`                        | Personal projects section                    |
 
 ### Format
 
-The files are TypeScript modules. Each key is a named export whose value is checked against the schema with
-`satisfies`: `pnpm check` reports a missing or misspelled field inside it, or a value of the wrong type. It does not
-check the export names themselves (a misspelled optional export, such as `expertize`, is ignored and its section is
-not rendered), nor the constraints that only exist at runtime (URL format, gauge between 0 and 100): `pnpm test`
-checks both, by parsing the data with the schema.
+- `"$schema"` points to `data/schema.json`, as a path relative to the data file. Editors use it to complete and check
+  the file. The rendering ignores it.
+- The file replaces the example entirely: nothing is merged with it. A missing optional section is not rendered.
+- The schema is strict: an unknown key, such as a misspelled `expertize`, is an error, as is a missing required key.
+- The data is validated when it is read: `pnpm pdf` lists the errors and writes nothing, the preview shows them in
+  its error overlay. `pnpm check` does not validate the data; `pnpm test` validates `data/example.json`.
 
-```ts
-export const lang = 'en' satisfies Resume['lang'];
+The start of a data file (the other required keys are left out):
 
-export const contact = [
-  { label: 'email', value: 'jane@example.com', href: 'mailto:jane@example.com' },
-] satisfies Resume['contact'];
+```json
+{
+  "$schema": "./schema.json",
+  "lang": "en",
+  "contact": [{ "label": "email", "value": "jane@example.com", "href": "mailto:jane@example.com" }]
+}
 ```
 
 ### Field reference
 
-The schema of the data is written with Valibot in `src/schema/`, split like the files in `data/`: one module per data
-file, assembled by `src/schema/index.ts`. It is the source of truth: the types used by the rendering code are inferred
-from it.
+The schema of the data is written with Valibot in `src/schema/`, one module per part of the resume (settings,
+profile, skills, experience, education, projects), assembled by `src/schema/index.ts`. It is the source of truth: the
+types used by the rendering code are inferred from it.
 
 `data/schema.json` is generated from it by `pnpm schema`, as a JSON Schema (draft 2020-12). It is the contract with the
 tool that writes the data, so it stays in the repository. For every field, it gives the type, whether it is required,
-the file it belongs to, and what it is used for. The CI fails if it is not up to date.
+and what it is used for. The CI fails if it is not up to date.
 
 Required keys: `lang`, `settings`, `name`, `title`, `contact`. Every other section is optional
 and is not rendered when it is missing or empty.
@@ -184,16 +225,16 @@ explained in comments in `styles/`, in the rendering code (`src/`) and in `scrip
 ## Project structure
 
 ```
-data/                   Resume data
-  index.ts              Re-exports every data file
+data/
+  example.json          Example data file, used by default and by the GitHub Pages build
   schema.json           JSON Schema of the data, generated from src/schema/
-  settings.ts, profile.ts, skills.ts, experience.ts, education.ts, projects.ts
 src/
   schema/               Valibot schema of the data, source of the types and of data/schema.json
     index.ts            Assembles the modules into ResumeSchema, exports the types
     shared.ts           Rich text and tag list fields
     settings.ts, profile.ts, skills.ts, experience.ts, education.ts, projects.ts
-  main.ts               Page entry point: renders the data of data/index.ts
+  main.ts               Page entry point: renders the data served as virtual:resume-data
+  resume-data.d.ts      Type of the virtual:resume-data module
   render.ts             Renders a resume: fonts, pagination, overflow warning
   render/
     html-fragments.ts   HTML escaping, rich text, lists
@@ -205,6 +246,9 @@ src/
   **/*.test.ts          Unit tests, next to the module they test
 scripts/
   pdf.ts                pnpm pdf
+  preview.ts            pnpm preview: runs vp dev on the data file
+  cli.ts                Command-line arguments and paths of pdf.ts and preview.ts
+  resume-data.ts        Reads and validates the data file, Vite plugin serving it as virtual:resume-data
   font-check.ts         Fails the PDF generation when a text is drawn with a system font
   generate-schema.ts    pnpm schema
   assert-schema-staged.ts  Pre-commit: fails if src/schema/ has unstaged changes
@@ -223,7 +267,7 @@ styles/
 assets/
   fonts/                Geist and Geist Mono, static instances
 vite.config.ts          Vite+ configuration: build, formatting (Oxfmt), lint (Oxlint) and test (Vitest) rules
-tsconfig.json           TypeScript projects: tsconfig.app.json (page and data), tsconfig.node.json (scripts),
+tsconfig.json           TypeScript projects: tsconfig.app.json (page), tsconfig.node.json (scripts),
                         tsconfig.test.json (tests/)
 .github/actions/
   setup/                Installs Vite+, Node.js, pnpm and the dependencies, for every workflow

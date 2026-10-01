@@ -1,0 +1,195 @@
+{
+  "$schema": "./schema.json",
+  "lang": "en",
+  "settings": {
+    "showPrompt": true,
+    "qr": {
+      "url": "https://en.wikipedia.org/wiki/Dwight_Schrute",
+      "label": "Wikipedia profile"
+    }
+  },
+  "name": "Dwight K. Schrute III",
+  "title": "Regional Manager",
+  "tag": "Paper · Beets",
+  "summary": "Salesman at Dunder Mifflin Scranton, **2005 Salesman of the Year**, now **Regional Manager** of the branch. Owner of **Schrute Farms**, a beet farm and bed & breakfast, and of the **Scranton Business Park**. Goju-ryu karate black belt and former volunteer sheriff's deputy. I close a sale end to end, from prospecting to delivery. And I never lose.",
+  "contact": [
+    {
+      "label": "city",
+      "value": "Scranton, PA"
+    },
+    {
+      "label": "phone",
+      "value": "+1 717-555-0177",
+      "href": "tel:+17175550177"
+    },
+    {
+      "label": "email",
+      "value": "dwight@schrutefarms.example",
+      "href": "mailto:dwight@schrutefarms.example"
+    },
+    {
+      "label": "web",
+      "value": "schrutefarms.example",
+      "href": "https://schrutefarms.example",
+      "accent": true
+    },
+    {
+      "label": "blog",
+      "value": "schrute-space.example",
+      "href": "https://schrute-space.example"
+    }
+  ],
+  "expertise": [
+    "B2B paper sales, from prospecting to delivery",
+    "Real estate & building management",
+    "Beet farming & agritourism",
+    "Office safety and evacuation plans",
+    "Sales team management"
+  ],
+  "stack": [
+    {
+      "label": "sales",
+      "level": "expert",
+      "items": [
+        {
+          "name": "Prospecting",
+          "primary": true
+        },
+        {
+          "name": "Negotiation",
+          "primary": true
+        },
+        {
+          "name": "Closing",
+          "primary": true
+        },
+        "Cold calling",
+        "Trade shows",
+        "CRM"
+      ]
+    },
+    {
+      "label": "farming",
+      "level": "advanced",
+      "items": ["Beets", "Hemp", "Bed & breakfast"]
+    },
+    {
+      "label": "security",
+      "items": ["Goju-ryu karate", "Weapons", "Survival", "Surveillance"]
+    },
+    {
+      "label": "other",
+      "items": ["Notary public", "Table tennis", "Second Life"]
+    }
+  ],
+  "languages": [
+    {
+      "name": "English",
+      "level": "native",
+      "value": 100
+    },
+    {
+      "name": "German",
+      "level": "pre-industrial",
+      "value": 60
+    }
+  ],
+  "experience": [
+    {
+      "role": "Regional Manager",
+      "company": "Dunder Mifflin",
+      "location": "Scranton, PA",
+      "start": "May 2013",
+      "current": true,
+      "context": "Scranton branch of the paper distribution company.",
+      "bullets": [
+        "**Promoted by CEO David Wallace** for loving paper more than anyone",
+        "Appointed Jim Halpert as **Assistant to the Regional Manager**",
+        "Named himself **Assistant to the Assistant to the Regional Manager**"
+      ],
+      "stack": ["Management", "B2B sales", "Paper"]
+    },
+    {
+      "role": "Owner & Building Manager",
+      "company": "Scranton Business Park",
+      "location": "Scranton, PA",
+      "start": "Sep 2010",
+      "current": true,
+      "context": "Office park at 1725 Slough Avenue, home of the Dunder Mifflin Scranton branch.",
+      "bullets": [
+        "Bought the building on the advice of former CEO **Jo Bennett**",
+        "Turned the lobby into a **coffee shop** and an empty room into a **state-of-the-art gym**"
+      ],
+      "stack": ["Real estate", "Property management"]
+    },
+    {
+      "role": "Owner & Operator",
+      "company": "Schrute Farms",
+      "location": "Pennsylvania",
+      "start": "Jan 2004",
+      "current": true,
+      "context": "Family beet farm, bed & breakfast and agritourism destination, run with cousin Mose.",
+      "bullets": [
+        "**60-acre farm** inherited from his grandfather, expanded to **1,600 acres**",
+        "Themed guest rooms: **America, Irrigation, Nighttime**",
+        "Beets sold to local stores, restaurants and roadside stands"
+      ],
+      "stack": ["Farming", "Hospitality", "Agritourism"]
+    },
+    {
+      "role": "Salesman & Assistant to the Regional Manager",
+      "company": "Dunder Mifflin",
+      "location": "Scranton, PA",
+      "start": "Apr 2001",
+      "end": "May 2013",
+      "context": "Regional paper distributor, acquired by Sabre in 2010.",
+      "bullets": [
+        "**2005 Salesman of the Year**",
+        "**Assistant to the regional manager**, not assistant regional manager",
+        "Paired with Jim Halpert as a **traveling sales team**",
+        "Ran an **unannounced fire drill** using a real fire"
+      ],
+      "stack": ["B2B sales", "Prospecting", "Negotiation"]
+    },
+    {
+      "role": "Volunteer Sheriff's Deputy",
+      "company": "Lackawanna County",
+      "start": "2005",
+      "end": "Apr 2006",
+      "bullets": [
+        "Trained in the art of **surveillance**",
+        "Resigned after breaking his pledge to help his manager pass a **drug test**"
+      ]
+    }
+  ],
+  "education": [
+    {
+      "degree": "Goju-ryu Karate",
+      "school": "Scranton dojo",
+      "start": "2006",
+      "end": "May 2013",
+      "items": ["Black belt", "Senpai at his dojo"]
+    },
+    {
+      "degree": "Bachelor's degree",
+      "school": "Scranton Business School",
+      "start": "1988",
+      "end": "1992"
+    }
+  ],
+  "projects": [
+    {
+      "name": "Schrute-Space",
+      "url": "https://schrute-space.example",
+      "year": "2005",
+      "description": "Personal blog on bears, beets and Amish traditions.",
+      "stack": ["Blog", "Writing"]
+    },
+    {
+      "name": "Schrute Bucks",
+      "year": "2007",
+      "description": "Reward currency created during his interim term as regional manager, worth $0.0001.",
+      "stack": ["Gamification", "Management"]
+    }
+  ]
+}

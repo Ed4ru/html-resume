@@ -26,15 +26,9 @@ const LanguageSchema = v.strictObject({
 });
 
 export const skillsEntries = {
-  expertise: v.optional(
-    v.pipe(v.array(v.string()), v.description('File: skills.ts. Sidebar expertise, one line each. Rich text.')),
-  ),
-  stack: v.optional(
-    v.pipe(v.array(StackGroupSchema), v.description('File: skills.ts. Sidebar technologies, by group.')),
-  ),
-  languages: v.optional(
-    v.pipe(v.array(LanguageSchema), v.description('File: skills.ts. Spoken languages, with a gauge.')),
-  ),
+  expertise: v.optional(v.pipe(v.array(v.string()), v.description('Sidebar expertise, one line each. Rich text.'))),
+  stack: v.optional(v.pipe(v.array(StackGroupSchema), v.description('Sidebar technologies, by group.'))),
+  languages: v.optional(v.pipe(v.array(LanguageSchema), v.description('Spoken languages, with a gauge.'))),
 };
 
 export type Technology = v.InferOutput<typeof TechnologySchema>;

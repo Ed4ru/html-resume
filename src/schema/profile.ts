@@ -11,25 +11,16 @@ const ContactSchema = v.strictObject({
 });
 
 export const profileEntries = {
-  name: v.pipe(v.string(), v.description('File: profile.ts. Full name, main heading of the resume.')),
+  name: v.pipe(v.string(), v.description('Full name, main heading of the resume.')),
   title: v.pipe(
     v.string(),
-    v.description(
-      "File: profile.ts. Target job title, below the name. First ATS filter: reuse the job posting's title.",
-    ),
+    v.description("Target job title, below the name. First ATS filter: reuse the job posting's title."),
   ),
   tag: v.optional(
-    v.pipe(
-      v.string(),
-      v.description('File: profile.ts. Short addition next to the title.'),
-      v.examples(['TypeScript · Full-stack']),
-    ),
+    v.pipe(v.string(), v.description('Short addition next to the title.'), v.examples(['TypeScript · Full-stack'])),
   ),
-  summary: v.optional(richText('File: profile.ts. Profile paragraph below the header.')),
-  contact: v.pipe(
-    v.array(ContactSchema),
-    v.description('File: profile.ts. Sidebar contact details, in display order.'),
-  ),
+  summary: v.optional(richText('Profile paragraph below the header.')),
+  contact: v.pipe(v.array(ContactSchema), v.description('Sidebar contact details, in display order.')),
 };
 
 export type Contact = v.InferOutput<typeof ContactSchema>;

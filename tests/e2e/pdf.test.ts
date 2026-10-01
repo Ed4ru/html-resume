@@ -1,7 +1,7 @@
 // The PDF read as an ATS does (README, "ATS compatibility"). The expected texts are derived from
-// the data, so the same checks run on the test resume and on data/.
+// the data, so the same checks run on the test resume and on the example data.
 import { beforeAll, describe, expect, it } from 'vite-plus/test';
-import * as data from '../../data/index.ts';
+import { EXAMPLE_DATA_FILE, readResume } from '../../scripts/resume-data.ts';
 import { getLabels } from '../../src/render/labels.ts';
 import type { Resume } from '../../src/schema/index.ts';
 import { resume, SPECIAL_TEXTS, specialCharactersResume } from '../fixtures/resume.ts';
@@ -53,7 +53,7 @@ const printPdf = async (resume?: Resume) => {
 const sources: { name: string; resume: Resume; render: boolean }[] = [
   { name: 'test resume', resume, render: true },
   { name: 'French test resume', resume: { ...resume, lang: 'fr' }, render: true },
-  { name: 'data/', resume: { ...data }, render: false },
+  { name: 'example data', resume: readResume(EXAMPLE_DATA_FILE), render: false },
 ];
 
 describe.each(sources)('PDF of the $name', ({ resume, render }) => {

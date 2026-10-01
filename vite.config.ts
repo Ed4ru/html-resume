@@ -1,8 +1,10 @@
 import { defineConfig } from 'vite-plus';
+import { resumeDataPlugin } from './scripts/resume-data.ts';
 
 export default defineConfig({
   // Relative asset paths: the site is served from a subpath on GitHub Pages.
   base: './',
+  plugins: [resumeDataPlugin()],
   fmt: {
     singleQuote: true,
     printWidth: 120,

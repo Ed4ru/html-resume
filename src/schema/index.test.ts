@@ -1,6 +1,5 @@
 import * as v from 'valibot';
 import { describe, expect, it } from 'vite-plus/test';
-import * as data from '../../data/index.ts';
 import { resume } from '../../tests/fixtures/resume.ts';
 import { ResumeSchema } from './index.ts';
 
@@ -11,11 +10,6 @@ const issuePaths = (input: unknown) => {
 };
 
 describe('ResumeSchema', () => {
-  // satisfies only checks the value of each export, not the export names nor the runtime constraints.
-  it('accepts the data in data/', () => {
-    expect(issuePaths({ ...data })).toEqual([]);
-  });
-
   it('accepts the test resume', () => {
     expect(issuePaths(resume)).toEqual([]);
   });
@@ -23,7 +17,7 @@ describe('ResumeSchema', () => {
   it.each([
     ['a missing required field', { name: undefined }, 'name'],
     ['an unsupported language', { lang: 'de' }, 'lang'],
-    ['a misspelled export', { expertize: ['Sales'] }, 'expertize'],
+    ['a misspelled key', { expertize: ['Sales'] }, 'expertize'],
     [
       'a QR code URL that is not a URL',
       { settings: { showPrompt: true, qr: { url: 'example.com' } } },
