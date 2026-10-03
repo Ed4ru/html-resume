@@ -4,7 +4,7 @@ import { beforeAll, describe, expect, it } from 'vite-plus/test';
 import { EXAMPLE_DATA_FILE, readResume } from '../../scripts/resume-data.ts';
 import { getLabels } from '../../src/render/labels.ts';
 import type { Resume } from '../../src/schema/index.ts';
-import { resume, SPECIAL_TEXTS, specialCharactersResume } from '../fixtures/resume.ts';
+import { LONG_JOB_BULLETS, longJobResume, resume, SPECIAL_TEXTS, specialCharactersResume } from '../fixtures/resume.ts';
 import { readPdf, type PdfText } from './pdf-text.ts';
 import { openPreview } from './preview.ts';
 
@@ -132,6 +132,18 @@ describe('PDF text', () => {
   it.each(READINGS)('reads → in rich text as a hyphen (%s)', async (reading) => {
     const pdf = await printPdf(resume);
     expect(pdf.pages[0]![reading].join(' ')).toContain('from prospecting - delivery');
+  });
+
+  it.each(READINGS)('reads a split entry in order, before the sidebar of each page (%s)', async (reading) => {
+    const pdf = await printPdf(longJobResume);
+    const continuedPages = pdf.pages.slice(1);
+    const lines = pdf.pages.flatMap((page) => page[reading]);
+    const bulletLines = LONG_JOB_BULLETS.map((bullet) => lines.findIndex((line) => line.includes(`• ${bullet}`)));
+
+    expect(continuedPages.length).toBeGreaterThan(0);
+    expect(bulletLines).not.toContain(-1);
+    expect(bulletLines).toEqual([...bulletLines].sort((a, b) => a - b));
+    for (const page of continuedPages) expect(page.streamLines[0]).toMatch(/^• Deal \d+:/);
   });
 
   it.each(READINGS)('keeps accents, quotes, < and & (%s)', async (reading) => {

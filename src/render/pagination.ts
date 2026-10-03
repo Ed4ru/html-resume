@@ -2,6 +2,11 @@ const MEASUREMENT_TOLERANCE_PX = 0.5;
 
 const KEEP_WITH_NEXT_ATTRIBUTE = 'data-keep-with-next';
 
+// A split entry keeps its head and at least one list item, so that no title ends a page alone,
+// and carries at least two items to the next page, or one when it only has two.
+const MIN_ITEMS_KEPT = 1;
+const MIN_ITEMS_CARRIED = 2;
+
 export interface Block {
   html: string;
   className?: string;
@@ -42,10 +47,49 @@ const overflowsPage = (page: HTMLElement) => {
   return findPageFlow(page).getBoundingClientRect().bottom > contentBottom + MEASUREMENT_TOLERANCE_PX;
 };
 
+// The rest of a split entry: its carried list items, then its tags, without its head.
+const createContinuation = (entry: Element, list: Element, items: readonly Element[], tags: Element | null) => {
+  const continuation = entry.cloneNode(false) as Element;
+  const body = list.parentElement!.cloneNode(false) as Element;
+  const continuedList = list.cloneNode(false) as Element;
+  continuedList.append(...items);
+  body.append(continuedList, ...(tags ? [tags] : []));
+  continuation.append(body);
+  continuation.classList.add('entry--continued');
+  return continuation;
+};
+
+// Leaves on the page as many list items of an entry as fit, and returns the rest of the entry, or
+// undefined when it has no list or cannot be split there.
+const splitToFit = (page: HTMLElement, entry: Element) => {
+  const list = entry.querySelector('.bullets');
+  if (!list) return undefined;
+
+  const items = [...list.children];
+  const tags = entry.querySelector('.tags');
+  tags?.remove();
+  const minCarried = items.length > MIN_ITEMS_CARRIED ? MIN_ITEMS_CARRIED : 1;
+  for (let keptCount = items.length - minCarried; keptCount >= MIN_ITEMS_KEPT; keptCount--) {
+    items.slice(keptCount).forEach((item) => item.remove());
+    if (!overflowsPage(page)) return createContinuation(entry, list, items.slice(keptCount), tags);
+  }
+
+  list.append(...items);
+  if (tags) list.after(tags);
+  return undefined;
+};
+
+// Moving a block helps only when a block that is not carried along stays on the page.
+const canMoveToNextPage = (element: Element) => {
+  let previous = element.previousElementSibling;
+  while (previous?.hasAttribute(KEEP_WITH_NEXT_ATTRIBUTE)) previous = previous.previousElementSibling;
+  return previous !== null;
+};
+
 const detachWithKeptPredecessors = (flow: Element, element: Element) => {
   const detached = [element];
   element.remove();
-  while (flow.lastElementChild?.hasAttribute(KEEP_WITH_NEXT_ATTRIBUTE) && flow.children.length > 1) {
+  while (flow.lastElementChild?.hasAttribute(KEEP_WITH_NEXT_ATTRIBUTE)) {
     detached.unshift(flow.lastElementChild);
     flow.lastElementChild.remove();
   }
@@ -63,20 +107,28 @@ export const paginateIntoPages = (
   { firstPageSidebar, renderContinuationSidebar }: Sidebars,
 ) => {
   let page = appendPage(container, firstPageSidebar, false);
+  const startNextPage = () => {
+    page = appendPage(container, renderContinuationSidebar(container.children.length + 1), true);
+  };
 
-  for (const block of blocks) {
-    const element = createBlockElement(block);
+  // Elements that do not fit go back to the front of the queue, to be laid out on the next page.
+  const queue = blocks.map(createBlockElement);
+  for (let element = queue.shift(); element; element = queue.shift()) {
     const flow = findPageFlow(page);
     flow.append(element);
+    if (!overflowsPage(page)) continue;
 
-    // A block too tall for an empty page stays: moving it would not help.
-    const isAloneOnPage = flow.children.length === 1;
-    if (!overflowsPage(page) || isAloneOnPage) continue;
+    const continuation = splitToFit(page, element);
+    if (continuation) {
+      startNextPage();
+      queue.unshift(continuation);
+      continue;
+    }
 
-    const carriedElements = detachWithKeptPredecessors(flow, element);
-    const nextPageNumber = container.children.length + 1;
-    page = appendPage(container, renderContinuationSidebar(nextPageNumber), true);
-    findPageFlow(page).append(...carriedElements);
+    if (!canMoveToNextPage(element)) continue;
+
+    queue.unshift(...detachWithKeptPredecessors(flow, element));
+    startNextPage();
   }
 
   writePageTotals(container);
