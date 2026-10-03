@@ -142,12 +142,14 @@
   margin-bottom: 0;
 }
 
-/* Rest of an entry split by src/render/pagination.ts: no node, the line runs from the top. */
+/* Rest of an entry split by src/render/pagination.ts: no node, and the line and the list start
+   at the top. */
 .entry--continued::before {
   content: none;
 }
 
-.entry--continued::after {
+.entry--continued::after,
+.entry--continued .bullets {
   margin-top: 0;
 }
 

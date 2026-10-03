@@ -1,10 +1,9 @@
 const MEASUREMENT_TOLERANCE_PX = 0.5;
 
 const KEEP_WITH_NEXT_ATTRIBUTE = 'data-keep-with-next';
-const SPLITTABLE_ATTRIBUTE = 'data-splittable';
 
 // A split entry keeps its head and at least one list item, so that no title ends a page alone,
-// and carries at least two items to the next page.
+// and carries at least two items to the next page, or one when it only has two.
 const MIN_ITEMS_KEPT = 1;
 const MIN_ITEMS_CARRIED = 2;
 
@@ -12,8 +11,6 @@ export interface Block {
   html: string;
   className?: string;
   keepWithNext?: boolean;
-  // An entry that can be split between two list items when it does not fit on the page.
-  splittable?: boolean;
 }
 
 interface Sidebars {
@@ -27,7 +24,6 @@ const createBlockElement = (block: Block) => {
   const element = template.content.firstElementChild!;
   if (block.className) element.classList.add(...block.className.split(' ').filter(Boolean));
   if (block.keepWithNext) element.setAttribute(KEEP_WITH_NEXT_ATTRIBUTE, '');
-  if (block.splittable) element.setAttribute(SPLITTABLE_ATTRIBUTE, '');
   return element;
 };
 
@@ -63,23 +59,23 @@ const createContinuation = (entry: Element, list: Element, items: readonly Eleme
   return continuation;
 };
 
-// Leaves on the page as many list items as fit, and returns the rest of the entry, or undefined
-// when the entry cannot be split there.
+// Leaves on the page as many list items of an entry as fit, and returns the rest of the entry, or
+// undefined when it has no list or cannot be split there.
 const splitToFit = (page: HTMLElement, entry: Element) => {
-  const list = entry.hasAttribute(SPLITTABLE_ATTRIBUTE) ? entry.querySelector('.bullets') : null;
+  const list = entry.querySelector('.bullets');
   if (!list) return undefined;
 
   const items = [...list.children];
   const tags = entry.querySelector('.tags');
-  const tagsPosition = tags && { parent: tags.parentElement!, next: tags.nextSibling };
   tags?.remove();
-  for (let keptCount = items.length - MIN_ITEMS_CARRIED; keptCount >= MIN_ITEMS_KEPT; keptCount--) {
+  const minCarried = items.length > MIN_ITEMS_CARRIED ? MIN_ITEMS_CARRIED : 1;
+  for (let keptCount = items.length - minCarried; keptCount >= MIN_ITEMS_KEPT; keptCount--) {
     items.slice(keptCount).forEach((item) => item.remove());
     if (!overflowsPage(page)) return createContinuation(entry, list, items.slice(keptCount), tags);
   }
 
   list.append(...items);
-  if (tagsPosition) tagsPosition.parent.insertBefore(tags, tagsPosition.next);
+  if (tags) list.after(tags);
   return undefined;
 };
 
@@ -129,7 +125,6 @@ export const paginateIntoPages = (
       continue;
     }
 
-    // A block too tall for an empty page, and not splittable, stays: moving it would not help.
     if (!canMoveToNextPage(element)) continue;
 
     queue.unshift(...detachWithKeptPredecessors(flow, element));

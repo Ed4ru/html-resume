@@ -85,7 +85,7 @@ export const manyJobsResume = {
 // One bullet per line, numbered to check their order across pages.
 export const LONG_JOB_BULLETS = Array.from({ length: 100 }, (_, index) => `Deal ${index + 1}: kept the account a year`);
 
-// A job taller than two pages, after a job that leaves part of the first page empty.
+// A job taller than a page: it starts on the first page, after another job, and ends on the third.
 export const longJobResume = {
   ...resume,
   experience: [

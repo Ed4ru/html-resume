@@ -58,13 +58,6 @@ describe('sections', () => {
     });
   });
 
-  it('lets the pagination split experience and education entries only', () => {
-    const splittable = render()
-      .filter((block) => block.splittable)
-      .map((block) => block.html.match(/class="entry__title">([^<]+)</)?.[1]);
-    expect(splittable).toEqual([...resume.experience.map((job) => job.role), resume.education[0]!.degree]);
-  });
-
   it('uses the labels of the resume language', () => {
     expect(sectionTitles({ lang: 'fr' })).toEqual(['01 Expérience', '02 Formation', '03 Projets persos']);
   });

@@ -73,14 +73,18 @@ describe('rendering', () => {
 
 const expectPagesToFit = (pages: Awaited<ReturnType<typeof readPages>>) => {
   pages.forEach((page, index) => {
-    // A block too tall for an empty page, and not splittable, stays alone on it.
+    // A block too tall for an empty page, that cannot be split, stays alone on it.
     if (page.blockCount > 1) expect(page.overflowingBlocks, `page ${index + 1}`).toBe(0);
     // A section title is never the last block of a page.
     expect(page.endsWithKeptBlock, `page ${index + 1}`).toBe(false);
-    // A split entry keeps at least one item with its head and carries at least two.
+    // A split entry keeps at least one item with its head and carries at least two, or one when it
+    // only has two.
     if (page.continuedItemCount !== undefined) {
-      expect(page.continuedItemCount, `page ${index + 1}`).toBeGreaterThanOrEqual(2);
-      expect(pages[index - 1]!.lastBlockItemCount, `page ${index}`).toBeGreaterThanOrEqual(1);
+      const keptCount = pages[index - 1]!.lastBlockItemCount;
+      expect(keptCount, `page ${index}`).toBeGreaterThanOrEqual(1);
+      expect(page.continuedItemCount, `page ${index + 1}`).toBeGreaterThanOrEqual(
+        keptCount + page.continuedItemCount > 2 ? 2 : 1,
+      );
     }
   });
 };
@@ -131,16 +135,31 @@ describe('pagination', () => {
     expect(fragments.flatMap((fragment) => fragment.items)).toEqual(LONG_JOB_BULLETS);
   });
 
-  it('moves an entry whole when it cannot keep one item and carry two', async () => {
+  it('splits an entry of two items, one on each page', async () => {
     await preview.render({
       ...manyJobsResume,
       experience: manyJobsResume.experience.map((job) => ({ ...job, bullets: job.bullets!.slice(0, 2) })),
     });
     const pages = await readPages();
 
+    expectPagesToFit(pages);
+    expect(pages.map((page) => page.continuedItemCount)).toContain(1);
+  });
+
+  it('moves an entry of a single item whole', async () => {
+    await preview.render({
+      ...manyJobsResume,
+      experience: manyJobsResume.experience.map((job) => ({ ...job, bullets: job.bullets!.slice(0, 1) })),
+    });
+    const pages = await readPages();
+
     expect(pages.length).toBeGreaterThanOrEqual(2);
     expectPagesToFit(pages);
     expect(await preview.page.$$eval('#cv .entry--continued', (entries) => entries.length)).toBe(0);
+    // Each job keeps its tags right after its list.
+    expect(await preview.page.$$eval('#cv .bullets + .tags', (tags) => tags.length)).toBe(
+      manyJobsResume.experience.length,
+    );
   });
 });
 
