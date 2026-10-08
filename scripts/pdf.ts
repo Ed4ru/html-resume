@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 import puppeteer from 'puppeteer';
 import { createServer } from 'vite-plus';
 import { errorMessage, hasExtension, parseCliArgs, resolveUserPath } from './cli.ts';
-import { assertNoFallbackFonts } from './font-check.ts';
+import { assertNoFallbackFonts, assertNoSynthesizedFonts } from './font-check.ts';
 import { DATA_FILE_ENV, EXAMPLE_DATA_FILE, readResume } from './resume-data.ts';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
@@ -70,6 +70,7 @@ const printPdf = async ({ dataFile, pdfFile }: ReturnType<typeof resolvePaths>) 
     await Promise.race([page.waitForSelector('html[data-ready="true"]', { timeout: 15_000 }), failed]);
     if (errors.length) throw await failed.catch((err: unknown) => err);
     await assertNoFallbackFonts(page);
+    await assertNoSynthesizedFonts(page);
 
     mkdirSync(dirname(pdfFile), { recursive: true });
     await page.pdf({ path: pdfFile, preferCSSPageSize: true, printBackground: true });

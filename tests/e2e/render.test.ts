@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vite-plus/test';
-import { assertNoFallbackFonts } from '../../scripts/font-check.ts';
+import { assertNoFallbackFonts, assertNoSynthesizedFonts } from '../../scripts/font-check.ts';
 import {
   fallbackFontsResume,
   LONG_JOB_BULLETS,
@@ -57,6 +57,7 @@ describe('rendering', () => {
     expect(preview.warnings).toEqual([]);
     expect((await readPages()).length).toBeGreaterThan(0);
     await expect(assertNoFallbackFonts(preview.page)).resolves.toBeUndefined();
+    await expect(assertNoSynthesizedFonts(preview.page)).resolves.toBeUndefined();
   });
 
   it('renders another resume in place of the example data', async () => {
@@ -66,6 +67,7 @@ describe('rendering', () => {
     expect(await preview.page.$eval('.header__name', (element) => element.textContent)).toBe(resume.name);
     expect(await preview.page.$eval('html', (element) => element.lang)).toBe(resume.lang);
     await expect(assertNoFallbackFonts(preview.page)).resolves.toBeUndefined();
+    await expect(assertNoSynthesizedFonts(preview.page)).resolves.toBeUndefined();
   });
 
   it('draws accents, quotes and punctuation with the embedded fonts', async () => {
@@ -189,5 +191,19 @@ describe('font guard', () => {
     expect(message).toContain('"→" (U+2192)');
     expect(message).toContain('"▸" (U+25B8)');
     expect(message).toContain('"🏆" (U+1F3C6)');
+  });
+
+  it('names each text in a style Chrome synthesizes', async () => {
+    await preview.render(resume);
+    // Geist Mono has no italic file, and no 800 weight.
+    await preview.page.addStyleTag({
+      content: `.entry__context { font-family: 'Geist Mono' } .header__title { font-family: 'Geist Mono'; font-weight: 800 }`,
+    });
+    const error = await assertNoSynthesizedFonts(preview.page).catch((err: unknown) => err);
+
+    expect(error).toBeInstanceOf(Error);
+    const { message } = error as Error;
+    expect(message).toContain(`"${resume.experience[0]!.context}" in Geist Mono 400 italic`);
+    expect(message).toContain(`"${resume.title}" in Geist Mono 800 normal`);
   });
 });
