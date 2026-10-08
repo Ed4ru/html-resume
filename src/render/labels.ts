@@ -15,12 +15,12 @@ export interface Labels {
 
 const LABELS: Record<Lang, Labels> = {
   fr: {
-    experienceSection: 'Expérience',
+    experienceSection: 'Expérience professionnelle',
     educationSection: 'Formation',
-    projectsSection: 'Projets persos',
+    projectsSection: 'Projets personnels',
     contactBlock: 'Contact',
-    expertiseBlock: 'Savoir-faire',
-    stackBlock: 'Stack',
+    expertiseBlock: 'Compétences',
+    stackBlock: 'Compétences techniques',
     languagesBlock: 'Langues',
     currentPositionEnd: 'présent',
   },
@@ -29,8 +29,8 @@ const LABELS: Record<Lang, Labels> = {
     educationSection: 'Education',
     projectsSection: 'Personal projects',
     contactBlock: 'Contact',
-    expertiseBlock: 'Expertise',
-    stackBlock: 'Stack',
+    expertiseBlock: 'Skills',
+    stackBlock: 'Technical skills',
     languagesBlock: 'Languages',
     currentPositionEnd: 'present',
   },

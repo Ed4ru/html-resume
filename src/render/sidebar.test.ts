@@ -14,14 +14,18 @@ describe('first page sidebar', () => {
   });
 
   it('uses the labels of the resume language', () => {
-    expect(render({ lang: 'fr' })).toContain('// Savoir-faire');
-    expect(render()).toContain('// Expertise');
+    const fr = render({ lang: 'fr' });
+    expect(fr).toContain('>// Compétences</div>');
+    expect(fr).toContain('>// Compétences techniques</div>');
+    const en = render();
+    expect(en).toContain('>// Skills</div>');
+    expect(en).toContain('>// Technical skills</div>');
   });
 
   it('leaves out empty blocks', () => {
     const html = render({ expertise: [], stack: undefined, languages: [] });
-    expect(html).not.toContain('Expertise');
-    expect(html).not.toContain('Stack');
+    expect(html).not.toContain('// Skills');
+    expect(html).not.toContain('// Technical skills');
     expect(html).not.toContain('Languages');
   });
 

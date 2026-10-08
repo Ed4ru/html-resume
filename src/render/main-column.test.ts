@@ -59,7 +59,11 @@ describe('sections', () => {
   });
 
   it('uses the labels of the resume language', () => {
-    expect(sectionTitles({ lang: 'fr' })).toEqual(['01 Expérience', '02 Formation', '03 Projets persos']);
+    expect(sectionTitles({ lang: 'fr' })).toEqual([
+      '01 Expérience professionnelle',
+      '02 Formation',
+      '03 Projets personnels',
+    ]);
   });
 });
 
