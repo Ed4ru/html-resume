@@ -42,7 +42,10 @@ const readPages = () =>
             ? blocks[0].querySelectorAll('.bullets__item').length
             : undefined,
           lastBlockItemCount: blocks.at(-1)!.querySelectorAll('.bullets__item').length,
-          pageCount: page.querySelector('.page-count')?.textContent?.trim(),
+          // Drawn as paths: the text is in the data-text of each SVG.
+          pageCount: page.querySelector('.page-count')
+            ? [...page.querySelectorAll<SVGElement>('.page-count svg')].map((svg) => svg.dataset.text).join('')
+            : undefined,
         };
       }),
     MEASUREMENT_TOLERANCE_PX,

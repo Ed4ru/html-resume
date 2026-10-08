@@ -1,3 +1,4 @@
+import { drawMarkedText } from './render/drawn-text.ts';
 import { buildMainColumnBlocks } from './render/main-column.ts';
 import { paginateIntoPages } from './render/pagination.ts';
 import { renderContinuationSidebar, renderFirstPageSidebar } from './render/sidebar.ts';
@@ -39,6 +40,9 @@ export const renderResume = async (resume: Resume) => {
     firstPageSidebar: renderFirstPageSidebar(resume),
     renderContinuationSidebar: (pageNumber) => renderContinuationSidebar(resume, pageNumber),
   });
+  // After pagination, which writes the sidebars of the next pages. Drawing keeps the size of each
+  // element, so the pages do not change.
+  await drawMarkedText(container);
 
   const sidebarOverflowPx = measureSidebarOverflow(container);
   if (sidebarOverflowPx > 0) reportSidebarOverflow(sidebarOverflowPx);

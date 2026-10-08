@@ -1,6 +1,7 @@
 import { renderSVG } from 'uqr';
 import type { Contact, Language, Qr, Resume, StackGroup, Technology } from '../schema/index.ts';
 import {
+  DECORATION_ATTRIBUTES,
   escapeHtml,
   formatRichText,
   formatUrlForDisplay,
@@ -11,7 +12,7 @@ import {
 import { getLabels, type Labels } from './labels.ts';
 
 const renderSidebarSection = (title: string, content: string, modifier?: string) =>
-  `<div class="sidebar-section${modifier ? ` sidebar-section--${modifier}` : ''}"><div class="sidebar-section__title">// ${title}</div>${content}</div>`;
+  `<div class="sidebar-section${modifier ? ` sidebar-section--${modifier}` : ''}"><div class="sidebar-section__title"><span ${DECORATION_ATTRIBUTES}>// </span>${title}</div>${content}</div>`;
 
 const renderContactValue = (contact: Contact) =>
   contact.href
@@ -82,7 +83,7 @@ const renderQrCode = (qr: Qr | undefined) =>
       (presentUrl) => `
     <div class="qr">
       <div class="qr__code">${renderQrCodeSvg(presentUrl)}</div>
-      <div class="qr__text"><span class="qr__caption">&gt; scan_me</span>${renderIfPresent(label, (presentLabel) => `<span class="qr__label">${escapeHtml(presentLabel)}</span>`)}</div>
+      <div class="qr__text"><span class="qr__caption" ${DECORATION_ATTRIBUTES}>&gt; scan_me</span>${renderIfPresent(label, (presentLabel) => `<span class="qr__label" ${DECORATION_ATTRIBUTES}>${escapeHtml(presentLabel)}</span>`)}</div>
     </div>`,
     ),
   );
@@ -99,6 +100,6 @@ export const renderFirstPageSidebar = (resume: Resume) => {
 };
 
 export const renderContinuationSidebar = (resume: Resume, pageNumber: number) => `
-  <div class="mini-id"><strong class="mini-id__name">${escapeHtml(resume.name)}</strong><span class="mini-id__title">${escapeHtml(resume.title)}</span></div>
-  <span class="page-count">// page ${pageNumber}/<span class="page-count__total"></span></span>
+  <div class="mini-id" ${DECORATION_ATTRIBUTES}><strong class="mini-id__name">${escapeHtml(resume.name)}</strong><span class="mini-id__title">${escapeHtml(resume.title)}</span></div>
+  <span class="page-count" ${DECORATION_ATTRIBUTES}>// page ${pageNumber}/<span class="page-count__total"></span></span>
   ${renderQrCode(resume.settings.qr)}`;

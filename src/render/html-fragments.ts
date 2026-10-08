@@ -13,6 +13,15 @@ const DATE_ARROW = renderDrawnCharacter('-', 'arrow');
 export const escapeHtml = (value: string) =>
   value.replace(/[&<>"']/g, (character) => HTML_ESCAPES[character] ?? character);
 
+// Decorative text, drawn as SVG paths once rendered (src/render/drawn-text.ts): ATS parsers and screen
+// readers skip it.
+export const DRAWN_ATTRIBUTE = 'data-drawn';
+export const DECORATION_ATTRIBUTES = `${DRAWN_ATTRIBUTE} aria-hidden="true"`;
+
+// Drawn text that carries information: screen readers read it as an image with this label.
+export const renderDrawnLabelAttributes = (label: string) =>
+  `${DRAWN_ATTRIBUTE} role="img" aria-label="${escapeHtml(label)}"`;
+
 export const formatRichText = (text: string) =>
   escapeHtml(text)
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')

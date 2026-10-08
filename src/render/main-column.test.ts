@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vite-plus/test';
 import { resume } from '../../tests/fixtures/resume.ts';
 import type { Resume } from '../schema/index.ts';
+import { DECORATION_ATTRIBUTES, renderDrawnLabelAttributes } from './html-fragments.ts';
 import { buildMainColumnBlocks } from './main-column.ts';
 
 const render = (overrides: Partial<Resume> = {}) => buildMainColumnBlocks({ ...resume, ...overrides });
@@ -29,6 +30,14 @@ describe('header', () => {
     expect(header!.html).toContain('<strong>ten years</strong>');
   });
 
+  it('draws the tag, read by screen readers as an image', () => {
+    expect(render()[0]!.html).toContain(`<span class="header__tag" ${renderDrawnLabelAttributes(resume.tag)}>`);
+  });
+
+  it('draws the whoami line', () => {
+    expect(render()[0]!.html).toContain(`<div class="prompt" ${DECORATION_ATTRIBUTES}>`);
+  });
+
   it('shows the whoami line only with showPrompt', () => {
     expect(render()[0]!.html).toContain('whoami');
     expect(render({ settings: { showPrompt: false } })[0]!.html).not.toContain('whoami');
@@ -49,6 +58,12 @@ describe('sections', () => {
   it('leaves out an empty section and renumbers the next ones', () => {
     expect(sectionTitles({ education: [] })).toEqual(['01 Experience', '02 Personal projects']);
     expect(sectionTitles({ experience: undefined })).toEqual(['01 Education', '02 Personal projects']);
+  });
+
+  it('draws the section numbers', () => {
+    const titles = render().filter((block) => block.keepWithNext);
+    for (const title of titles)
+      expect(title.html).toContain(`<span class="section-title__index" ${DECORATION_ATTRIBUTES}>`);
   });
 
   it('keeps each section title with the block after it', () => {
