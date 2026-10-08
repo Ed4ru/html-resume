@@ -270,7 +270,7 @@
         ],
         "additionalProperties": false
       },
-      "description": "Experience section, most recent first. An entry is never split across two pages."
+      "description": "Experience section, most recent first."
     },
     "education": {
       "type": "array",
