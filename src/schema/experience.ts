@@ -29,12 +29,7 @@ const ExperienceSchema = v.strictObject({
 });
 
 export const experienceEntries = {
-  experience: v.optional(
-    v.pipe(
-      v.array(ExperienceSchema),
-      v.description('Experience section, most recent first. An entry is never split across two pages.'),
-    ),
-  ),
+  experience: v.optional(v.pipe(v.array(ExperienceSchema), v.description('Experience section, most recent first.'))),
 };
 
 export type Experience = v.InferOutput<typeof ExperienceSchema>;
