@@ -40,6 +40,24 @@ const listItemStarts = (resume: Resume) =>
     ...(resume.expertise ?? []),
   ].map((item) => toPlainText(item).split(' ').slice(0, 3).join(' '));
 
+// Section and sidebar titles, as the CSS writes them (text-transform: uppercase).
+const listTitles = (resume: Resume) => {
+  const labels = getLabels(resume.lang);
+  const sections: [items: readonly unknown[] | undefined, title: string][] = [
+    [resume.experience, labels.experienceSection],
+    [resume.education, labels.educationSection],
+    [resume.projects, labels.projectsSection],
+    [resume.contact, labels.contactBlock],
+    [resume.expertise, labels.expertiseBlock],
+    [resume.stack, labels.stackBlock],
+    [resume.languages, labels.languagesBlock],
+  ];
+  return sections.filter(([items]) => items?.length).map(([, title]) => title.toLocaleUpperCase(resume.lang));
+};
+
+// Text that src/render/drawn-text.ts draws as paths: none of it may reach the PDF.
+const DECORATIONS = ['~ $', 'whoami', 'scan_me'];
+
 const printPdf = async (resume?: Resume) => {
   const preview = await openPreview();
   try {
@@ -111,6 +129,23 @@ describe.each(sources)('PDF of the $name', ({ resume, render }) => {
 
   it('leaves a space pdftotext -raw reads between words', () => {
     expect(pdf.pages.flatMap((page) => page.mergedWords)).toEqual([]);
+  });
+
+  it('reads each section title alone on its line, without its number or // (streamLines)', () => {
+    const lines = pdf.pages.flatMap((page) => page.streamLines);
+    for (const title of listTitles(resume)) expect(lines, title).toContain(title);
+  });
+
+  it.each(READINGS)('contains no drawn decoration (%s)', (reading) => {
+    const text = pdf.pages.flatMap((page) => page[reading]).join('\n');
+    for (const decoration of [...DECORATIONS, '//']) expect(text).not.toContain(decoration);
+    if (resume.tag) expect(text).not.toContain(resume.tag);
+    if (resume.settings.qr?.label) expect(text).not.toContain(resume.settings.qr.label);
+    for (const title of listTitles(resume)) expect(text).not.toMatch(new RegExp(`\\d{2} ${title}`));
+  });
+
+  it.each(READINGS)('reads the name only on the first page (%s)', (reading) => {
+    for (const page of pdf.pages.slice(1)) expect(page[reading].join('\n')).not.toContain(resume.name);
   });
 
   it('reads the name first, then the main column, then the sidebar', () => {

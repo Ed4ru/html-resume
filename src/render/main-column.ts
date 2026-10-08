@@ -1,9 +1,11 @@
 import type { Education, EducationItem, Experience, Project, Resume } from '../schema/index.ts';
 import {
+  DECORATION_ATTRIBUTES,
   escapeHtml,
   formatDateRange,
   formatRichText,
   formatUrlForDisplay,
+  renderDrawnLabelAttributes,
   renderIfPresent,
   renderMarkedList,
   renderTagList,
@@ -11,8 +13,7 @@ import {
 import { getLabels, type Labels } from './labels.ts';
 import type { Block } from './pagination.ts';
 
-const PROMPT_LINE =
-  '<div class="prompt"><span class="prompt__tilde">~</span> $ whoami<span class="prompt__cursor"></span></div>';
+const PROMPT_LINE = `<div class="prompt" ${DECORATION_ATTRIBUTES}><span class="prompt__tilde">~</span> $ whoami<span class="prompt__cursor"></span></div>`;
 
 const createHeaderBlock = (resume: Resume): Block => ({
   html: `
@@ -21,7 +22,7 @@ const createHeaderBlock = (resume: Resume): Block => ({
       ${resume.settings.showPrompt ? PROMPT_LINE : ''}
       <div class="header__headline">
         <span class="header__title">${escapeHtml(resume.title)}</span>
-        ${renderIfPresent(resume.tag, (tag) => `<span class="header__tag">${escapeHtml(tag)}</span>`)}
+        ${renderIfPresent(resume.tag, (tag) => `<span class="header__tag" ${renderDrawnLabelAttributes(tag)}>${escapeHtml(tag)}</span>`)}
       </div>
       ${renderIfPresent(resume.summary, (summary) => `<p class="header__summary">${formatRichText(summary)}</p>`)}
     </header>`,
@@ -30,7 +31,7 @@ const createHeaderBlock = (resume: Resume): Block => ({
 const formatSectionNumber = (number: number) => String(number).padStart(2, '0');
 
 const createSectionTitleBlock = (number: number, title: string): Block => ({
-  html: `<div class="section-title"><span class="section-title__index">${formatSectionNumber(number)}</span><h2 class="section-title__heading">${escapeHtml(title)}</h2></div>`,
+  html: `<div class="section-title"><span class="section-title__index" ${DECORATION_ATTRIBUTES}>${formatSectionNumber(number)}</span><h2 class="section-title__heading">${escapeHtml(title)}</h2></div>`,
   keepWithNext: true,
 });
 
