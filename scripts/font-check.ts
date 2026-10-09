@@ -133,3 +133,41 @@ export const assertNoFallbackFonts = async (page: Page, selector = '#cv') => {
     await session.detach();
   }
 };
+
+// Runs in the page. Lists the texts whose family, weight and style match no @font-face rule: Chrome
+// then synthesizes the style from another file (slanted glyphs for italic, thickened ones for bold)
+// without reporting it. A slanted text is read letter by letter by macOS Preview (PDFKit).
+const FIND_SYNTHESIZED_TEXTS = `(selector) => {
+  const unquote = (family) => family.trim().replace(/^["']|["']$/g, '');
+  const listRules = (sheet) => [...sheet.cssRules].flatMap((rule) =>
+    rule instanceof CSSImportRule ? (rule.styleSheet ? listRules(rule.styleSheet) : [])
+      : rule instanceof CSSFontFaceRule ? [rule] : []);
+  const describe = (family, weight, style) => family + ' ' + Number(weight) + ' ' + (style || 'normal');
+  const declared = new Set([...document.styleSheets].flatMap(listRules).map((rule) =>
+    describe(unquote(rule.style.getPropertyValue('font-family')), rule.style.getPropertyValue('font-weight'),
+      rule.style.getPropertyValue('font-style'))));
+  const walker = document.createTreeWalker(document.querySelector(selector), NodeFilter.SHOW_TEXT);
+  const found = [];
+  while (walker.nextNode()) {
+    const node = walker.currentNode;
+    if (!node.data.trim()) continue;
+    const style = getComputedStyle(node.parentElement);
+    const face = describe(unquote(style.fontFamily.split(',')[0]), style.fontWeight, style.fontStyle);
+    if (!declared.has(face)) found.push({ text: node.data, face });
+  }
+  return found;
+}`;
+
+// Throws, naming each text and its style, if any text inside the element matching `selector` is
+// drawn in a style that no font file in assets/fonts provides.
+export const assertNoSynthesizedFonts = async (page: Page, selector = '#cv') => {
+  const found = (await page.evaluate(`(${FIND_SYNTHESIZED_TEXTS})(${JSON.stringify(selector)})`)) as {
+    text: string;
+    face: string;
+  }[];
+  if (!found.length) return;
+  const problems = found.map(({ text, face }) => `"${formatText(text)}" in ${face}`);
+  throw new Error(
+    `Text in a style missing from the fonts in assets/fonts, synthesized by Chrome:\n  ${problems.join('\n  ')}`,
+  );
+};

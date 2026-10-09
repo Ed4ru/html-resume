@@ -7,9 +7,13 @@ import { DRAWN_ATTRIBUTE, escapeHtml } from './html-fragments.ts';
 
 export type UnicodeRange = readonly [start: number, end: number];
 
-export interface FontFile {
+export interface FontDescriptor {
   family: string;
   weight: number;
+  style: string;
+}
+
+export interface FontFile extends FontDescriptor {
   url: string;
   ranges: readonly UnicodeRange[];
 }
@@ -40,6 +44,10 @@ export const parseUnicodeRange = (value: string): UnicodeRange[] =>
 
 const covers = (ranges: readonly UnicodeRange[], codePoint: number) =>
   ranges.some(([start, end]) => codePoint >= start && codePoint <= end);
+
+// The files of one face: an italic file must never draw upright text, nor the other way round.
+export const selectFontFiles = <T extends FontFile>(files: readonly T[], { family, weight, style }: FontDescriptor) =>
+  files.filter((file) => file.family === family && file.weight === weight && file.style === style);
 
 // The browser tries the @font-face rules of a family in reverse order: the last rule that covers a
 // character draws it.
@@ -128,6 +136,7 @@ const listFontFiles = (): FontFile[] =>
     return {
       family: unquote(rule.style.getPropertyValue('font-family')),
       weight: Number(rule.style.getPropertyValue('font-weight')),
+      style: rule.style.getPropertyValue('font-style') || 'normal',
       url: new URL(source, base).href,
       ranges: parseUnicodeRange(rule.style.getPropertyValue('unicode-range') || 'U+0-10FFFF'),
     };
@@ -168,10 +177,13 @@ const drawTextNode = async (node: Text, files: readonly FontFile[]) => {
   const style = getComputedStyle(parent);
   // White space collapses to one space, as it is rendered (white-space: normal).
   const text = transformText(node.data.replace(/\s+/g, ' '), style.textTransform, document.documentElement.lang);
-  const family = unquote(style.fontFamily.split(',')[0]!);
-  const weight = Number(style.fontWeight);
-  const familyFiles = files.filter((file) => file.family === family && file.weight === weight);
-  if (familyFiles.length === 0) throw new Error(`No @font-face for ${family} ${weight}`);
+  const face = {
+    family: unquote(style.fontFamily.split(',')[0]!),
+    weight: Number(style.fontWeight),
+    style: style.fontStyle,
+  };
+  const familyFiles = selectFontFiles(files, face);
+  if (familyFiles.length === 0) throw new Error(`No @font-face for ${face.family} ${face.weight} ${face.style}`);
 
   const runs = await Promise.all(
     splitIntoRuns(familyFiles, text).map(async (run) => ({ font: await loadFont(run.file.url), text: run.text })),

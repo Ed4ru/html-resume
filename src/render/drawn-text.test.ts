@@ -1,13 +1,22 @@
 import { readFileSync } from 'node:fs';
 import { create, type Font } from 'fontkit';
 import { describe, expect, it } from 'vite-plus/test';
-import { type FontFile, layoutRuns, parseUnicodeRange, pickFontFile, renderSvg, splitIntoRuns } from './drawn-text.ts';
+import {
+  type FontFile,
+  layoutRuns,
+  parseUnicodeRange,
+  pickFontFile,
+  renderSvg,
+  selectFontFiles,
+  splitIntoRuns,
+} from './drawn-text.ts';
 
 const loadFont = (file: string) => create(readFileSync(new URL(`../../assets/fonts/${file}`, import.meta.url))) as Font;
 
-const fontFile = (url: string, range: string): FontFile => ({
+const fontFile = (url: string, range: string, style = 'normal'): FontFile => ({
   family: 'Geist',
   weight: 400,
+  style,
   url,
   ranges: parseUnicodeRange(range),
 });
@@ -22,6 +31,23 @@ describe('parseUnicodeRange', () => {
       [0x131, 0x131],
       [0x2000, 0x206f],
     ]);
+  });
+});
+
+describe('selectFontFiles', () => {
+  // Italic files declared after the upright ones, as in styles/fonts.css.
+  const files = [
+    ...FILES,
+    fontFile('latin-ext-italic', 'U+0100-02BA', 'italic'),
+    fontFile('latin-italic', 'U+0000-00FF', 'italic'),
+  ];
+
+  it('keeps the files of the face only', () => {
+    const select = (style: string) =>
+      selectFontFiles(files, { family: 'Geist', weight: 400, style }).map((file) => file.url);
+    expect(select('normal')).toEqual(['latin-ext', 'latin']);
+    expect(select('italic')).toEqual(['latin-ext-italic', 'latin-italic']);
+    expect(selectFontFiles(files, { family: 'Geist', weight: 600, style: 'normal' })).toEqual([]);
   });
 });
 
