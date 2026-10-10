@@ -181,6 +181,28 @@ describe('sidebar overflow', () => {
   });
 });
 
+describe('list separators', () => {
+  it('change no size: the tags and technologies look the same', async () => {
+    await preview.render(resume);
+    const measure = () =>
+      preview.page.$$eval('.tags__item, .chips__item, .stack__label, .stack__label > span', (elements) =>
+        elements.map((element) => {
+          const { x, y, width, height } = element.getBoundingClientRect();
+          return [x, y, width, height];
+        }),
+      );
+    const withSeparators = await measure();
+    expect(await preview.page.$$eval('.list-separator', (separators) => separators.length)).toBeGreaterThan(0);
+    await preview.page.$$eval('.list-separator', (separators) => separators.forEach((separator) => separator.remove()));
+    const withoutSeparators = await measure();
+
+    expect(withSeparators.length).toBeGreaterThan(0);
+    withSeparators.forEach((rect, index) => {
+      rect.forEach((value, side) => expect(value).toBeCloseTo(withoutSeparators[index]![side]!, 2));
+    });
+  });
+});
+
 describe('font guard', () => {
   it('names each character drawn with a system font', async () => {
     await preview.render(fallbackFontsResume);
