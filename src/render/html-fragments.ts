@@ -71,4 +71,21 @@ export const renderMarkedList = <T>(
     modifier,
   );
 
-export const renderTagList = (items: readonly string[] | undefined) => renderList(items, 'tags', escapeHtml);
+// Punctuation between list items for ATS parsers ("B2B sales, Paper"), transparent and without width:
+// the list looks the same. Only punctuation: hidden words are a spam signal for ATS. `before` puts it
+// before the next text, one character to the left (monospace text).
+export const renderListSeparator = (punctuation: string, position: 'after' | 'before' = 'after') =>
+  `<span class="list-separator${position === 'before' ? ' list-separator--before' : ''}">${escapeHtml(punctuation)}</span>`;
+
+// Renders each item with a comma after it, except the last one.
+export const renderCommaSeparated =
+  <T>(renderItem: (item: T, separator: string) => string) =>
+  (item: T, index: number, items: readonly T[]) =>
+    renderItem(item, index < items.length - 1 ? renderListSeparator(',') : '');
+
+export const renderTagList = (items: readonly string[] | undefined) =>
+  renderIfPresent(
+    items,
+    (presentItems) =>
+      `<ul class="tags">${presentItems.map(renderCommaSeparated((item: string, separator) => `<li class="tags__item">${escapeHtml(item)}${separator}</li>`)).join('')}</ul>`,
+  );

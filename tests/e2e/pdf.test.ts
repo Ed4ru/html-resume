@@ -55,6 +55,13 @@ const listTitles = (resume: Resume) => {
   return sections.filter(([items]) => items?.length).map(([, title]) => title.toLocaleUpperCase(resume.lang));
 };
 
+// Lines of a reading with their spaces collapsed: pdftotext -layout pads columns with spaces.
+const readText = (pdf: PdfText, reading: (typeof READINGS)[number]) =>
+  pdf.pages
+    .flatMap((page) => page[reading])
+    .map((line) => line.replace(/\s+/g, ' '))
+    .join('\n');
+
 // Text that src/render/drawn-text.ts draws as paths: none of it may reach the PDF.
 const DECORATIONS = ['~ $', 'whoami', 'scan_me'];
 
@@ -142,6 +149,24 @@ describe.each(sources)('PDF of the $name', ({ resume, render }) => {
     if (resume.tag) expect(text).not.toContain(resume.tag);
     if (resume.settings.qr?.label) expect(text).not.toContain(resume.settings.qr.label);
     for (const title of listTitles(resume)) expect(text).not.toMatch(new RegExp(`\\d{2} ${title}`));
+  });
+
+  it.each(READINGS)('separates the tags with commas (%s)', (reading) => {
+    const text = readText(pdf, reading);
+    const tagLists = [...(resume.experience ?? []), ...(resume.projects ?? [])].flatMap((entry) =>
+      entry.stack?.length ? [entry.stack] : [],
+    );
+    expect(tagLists.length).toBeGreaterThan(0);
+    for (const tags of tagLists) expect(text).toContain(tags.join(', '));
+  });
+
+  it.each(READINGS)('reads each technology group as "label (level): a, b" (%s)', (reading) => {
+    const text = readText(pdf, reading);
+    for (const { label, level, items } of resume.stack ?? []) {
+      expect(text).toContain(level ? `${label} (${level}):` : `${label}:`);
+      const names = items.map((item) => (typeof item === 'string' ? item : item.name));
+      for (const name of names.slice(0, -1)) expect(text).toContain(`${name},`);
+    }
   });
 
   it.each(READINGS)('reads the name only on the first page (%s)', (reading) => {

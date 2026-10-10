@@ -3,10 +3,12 @@ import type { Contact, Language, Qr, Resume, StackGroup, Technology } from '../s
 import {
   DECORATION_ATTRIBUTES,
   escapeHtml,
+  renderCommaSeparated,
   formatRichText,
   formatUrlForDisplay,
   renderEach,
   renderIfPresent,
+  renderListSeparator,
   renderMarkedList,
 } from './html-fragments.ts';
 import { getLabels, type Labels } from './labels.ts';
@@ -33,16 +35,21 @@ const renderExpertiseBlock = (expertise: readonly string[] | undefined, labels: 
 const normalizeTechnology = (technology: Technology) =>
   typeof technology === 'string' ? { name: technology } : technology;
 
-const renderTechnologyChip = ({ name, primary }: { name: string; primary?: boolean }) =>
-  `<li class="chips__item${primary ? ' chips__item--primary' : ''}">${escapeHtml(name)}</li>`;
+const renderTechnologyChip = renderCommaSeparated(
+  ({ name, primary }: { name: string; primary?: boolean }, separator) =>
+    `<li class="chips__item${primary ? ' chips__item--primary' : ''}">${escapeHtml(name)}${separator}</li>`,
+);
 
-const renderStackLevel = (level: string | undefined) =>
-  renderIfPresent(level, (presentLevel) => `<span>${escapeHtml(presentLevel)}</span>`);
+// Read by ATS parsers as "sales (expert): Prospecting, Negotiation", or "sales: …" without a level.
+const renderStackLabel = ({ label, level }: StackGroup) =>
+  level
+    ? `<span>${escapeHtml(label)}</span><span>${renderListSeparator('(', 'before')}${escapeHtml(level)}${renderListSeparator('):')}</span>`
+    : `<span>${escapeHtml(label)}${renderListSeparator(':')}</span>`;
 
 const renderStackGroup = (group: StackGroup) => `
   <div class="stack__group">
-    <div class="stack__label"><span>${escapeHtml(group.label)}</span>${renderStackLevel(group.level)}</div>
-    <ul class="chips">${renderEach(group.items.map(normalizeTechnology), renderTechnologyChip)}</ul>
+    <div class="stack__label">${renderStackLabel(group)}</div>
+    <ul class="chips">${group.items.map(normalizeTechnology).map(renderTechnologyChip).join('')}</ul>
   </div>`;
 
 const renderStackBlock = (stack: readonly StackGroup[] | undefined, labels: Labels) =>

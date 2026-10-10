@@ -59,10 +59,10 @@ when it overflows, the preview and `pnpm pdf` warn about it.
 ## ATS compatibility
 
 The PDF text is meant to be read by applicant tracking systems: static fonts, with a real italic, the main column first
-in the reading order, real bullets and hyphens under the drawn markers, decorations drawn as paths without text (section
-numbers, `//`, the `whoami` line, the tag, the QR code caption and the sidebar of the next pages), and spacing that
-keeps words whole for PDF extractors. The tests read the PDF as an ATS does. Each choice is explained in comments in
-`styles/`, `src/` and `scripts/pdf.ts`.
+in the reading order, real bullets and hyphens under the drawn markers, transparent commas between tags, decorations
+drawn as paths without text (section numbers, `//`, the `whoami` line, the tag, the QR code caption and the sidebar of
+the next pages), and spacing that keeps words whole for PDF extractors. The tests read the PDF as an ATS does. Each
+choice is explained in comments in `styles/`, `src/` and `scripts/pdf.ts`.
 
 ## Contributing
 

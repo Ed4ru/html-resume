@@ -5,6 +5,7 @@ import {
   formatRichText,
   formatUrlForDisplay,
   renderIfPresent,
+  renderListSeparator,
   renderMarkedList,
   renderTagList,
 } from './html-fragments.ts';
@@ -94,5 +95,19 @@ describe('renderTagList', () => {
 
   it('renders nothing without tags', () => {
     expect(renderTagList(undefined)).toBe('');
+  });
+
+  it('puts a comma after each tag but the last', () => {
+    const comma = renderListSeparator(',');
+    expect(renderTagList(['B2B sales', 'Paper', 'CRM'])).toBe(
+      `<ul class="tags"><li class="tags__item">B2B sales${comma}</li><li class="tags__item">Paper${comma}</li><li class="tags__item">CRM</li></ul>`,
+    );
+  });
+});
+
+describe('renderListSeparator', () => {
+  it('renders the punctuation after the text, or before the next one', () => {
+    expect(renderListSeparator(',')).toBe('<span class="list-separator">,</span>');
+    expect(renderListSeparator('(', 'before')).toBe('<span class="list-separator list-separator--before">(</span>');
   });
 });

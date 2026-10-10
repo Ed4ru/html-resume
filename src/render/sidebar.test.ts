@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vite-plus/test';
 import { resume } from '../../tests/fixtures/resume.ts';
 import type { Resume } from '../schema/index.ts';
-import { DECORATION_ATTRIBUTES } from './html-fragments.ts';
+import { DECORATION_ATTRIBUTES, renderListSeparator } from './html-fragments.ts';
 import { renderContinuationSidebar, renderFirstPageSidebar } from './sidebar.ts';
 
 const render = (overrides: Partial<Resume> = {}) => renderFirstPageSidebar({ ...resume, ...overrides });
@@ -35,8 +35,22 @@ describe('first page sidebar', () => {
 
   it('highlights a primary technology', () => {
     const html = render();
-    expect(html).toContain('<li class="chips__item chips__item--primary">Prospecting</li>');
-    expect(html).toContain('<li class="chips__item">Negotiation</li>');
+    expect(html).toContain('<li class="chips__item chips__item--primary">Prospecting');
+    expect(html).toContain('<li class="chips__item">Negotiation');
+  });
+
+  it('separates the technologies of a group with commas', () => {
+    const html = render();
+    expect(html).toContain(`Prospecting${renderListSeparator(',')}</li>`);
+    expect(html).toContain('Negotiation</li>');
+  });
+
+  it('heads each technology group as "label (level):", or "label:" without a level', () => {
+    const html = render();
+    expect(html).toContain(
+      `<span>sales</span><span>${renderListSeparator('(', 'before')}expert${renderListSeparator('):')}</span>`,
+    );
+    expect(html).toContain(`<span>tools${renderListSeparator(':')}</span>`);
   });
 
   it('sizes each language gauge from its value', () => {

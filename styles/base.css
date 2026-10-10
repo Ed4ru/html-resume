@@ -75,6 +75,21 @@ strong {
   font-family: var(--mono);
 }
 
+/* List separators (src/render/html-fragments.ts): transparent punctuation in a box without width,
+   so it changes no size, and its glyph overflows into the padding of the list item. A negative
+   margin instead makes Chrome round the item too narrow for its text, which then wraps. The
+   --before one is moved one character to the left, ahead of the next text. */
+.list-separator {
+  display: inline-block;
+  width: 0;
+  white-space: nowrap;
+  color: transparent;
+}
+
+.list-separator--before {
+  text-indent: -1ch;
+}
+
 /* Drawn characters (date arrow, list markers): a real character, transparent, so ATS parsers
    read it (`Apr 2001 - May 2013`, a standard bullet). It is made transparent, not hidden:
    overflow, opacity or a tiny font size would drop it from the PDF or move it to another line.
