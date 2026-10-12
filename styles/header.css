@@ -20,8 +20,10 @@
   box-shadow: 0 0 0 1px var(--rule);
 }
 
+/* At the bottom of the band, level with the summary: macOS Preview (PDFKit) reads the contact details
+   before the summary when they face the title, as soon as the tag wraps to a line of its own. */
 .masthead__contact {
-  padding-top: 22px;
+  align-self: end;
 }
 
 .header {

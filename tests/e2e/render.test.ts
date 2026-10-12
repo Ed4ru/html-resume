@@ -224,6 +224,16 @@ describe('header', () => {
     for (const gap of gaps) expect(gap).toBeLessThanOrEqual(8.5);
   });
 
+  // macOS Preview (PDFKit) otherwise reads them before the summary when the tag wraps under the title.
+  it('puts the contact details at the bottom of the band', async () => {
+    await preview.render({ ...resume, title: 'Commander of the Imperial Fleet and of the Death Star' });
+    const { contactBottom, mastheadBottom } = await preview.page.$eval('#cv .masthead', (masthead) => ({
+      contactBottom: masthead.querySelector('.masthead__contact')!.getBoundingClientRect().bottom,
+      mastheadBottom: masthead.getBoundingClientRect().bottom,
+    }));
+    expect(contactBottom).toBeCloseTo(mastheadBottom, 0);
+  });
+
   it('warns about a photo over 500 KB, and still renders', async () => {
     await preview.render({ ...resume, photo: { src: createHeavyPhotoSrc() } });
     expect(await preview.page.$eval('.toolbar__name', (element) => element.textContent)).toContain('Photo too heavy');
