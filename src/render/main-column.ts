@@ -15,8 +15,9 @@ import type { Block } from './pagination.ts';
 
 const PROMPT_LINE = `<div class="prompt" ${DECORATION_ATTRIBUTES}><span class="prompt__tilde">~</span> $ whoami<span class="prompt__cursor"></span></div>`;
 
-const createHeaderBlock = (resume: Resume): Block => ({
-  html: `
+// Name, title and summary, at the top of the first page, outside the flow of the main column: they
+// are read before the sidebar, which is read before the sections (src/render/pagination.ts).
+export const buildHeader = (resume: Resume) => `
     <header class="header${resume.settings.showPrompt ? ' header--with-prompt' : ''}">
       <h1 class="header__name">${escapeHtml(resume.name)}</h1>
       ${resume.settings.showPrompt ? PROMPT_LINE : ''}
@@ -25,8 +26,7 @@ const createHeaderBlock = (resume: Resume): Block => ({
         ${renderIfPresent(resume.tag, (tag) => `<span class="header__tag" ${renderDrawnLabelAttributes(tag)}>${escapeHtml(tag)}</span>`)}
       </div>
       ${renderIfPresent(resume.summary, (summary) => `<p class="header__summary">${formatRichText(summary)}</p>`)}
-    </header>`,
-});
+    </header>`;
 
 const formatSectionNumber = (number: number) => String(number).padStart(2, '0');
 
@@ -119,11 +119,8 @@ export const buildMainColumnBlocks = (resume: Resume) => {
     blocks: section.createBlocks(resume, labels),
   })).filter((section) => section.blocks.length > 0);
 
-  return [
-    createHeaderBlock(resume),
-    ...filledSections.flatMap((section, index) => [
-      createSectionTitleBlock(index + 1, section.title),
-      ...section.blocks,
-    ]),
-  ];
+  return filledSections.flatMap((section, index) => [
+    createSectionTitleBlock(index + 1, section.title),
+    ...section.blocks,
+  ]);
 };

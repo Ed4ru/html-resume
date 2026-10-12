@@ -62,6 +62,15 @@ const readText = (pdf: PdfText, reading: (typeof READINGS)[number]) =>
     .map((line) => line.replace(/\s+/g, ' '))
     .join('\n');
 
+// Titles of the main column only.
+const listSectionTitles = (resume: Resume) => {
+  const labels = getLabels(resume.lang);
+  const sections = [labels.experienceSection, labels.educationSection, labels.projectsSection];
+  return listTitles(resume).filter((title) =>
+    sections.some((section) => section.toLocaleUpperCase(resume.lang) === title),
+  );
+};
+
 // Text that src/render/drawn-text.ts draws as paths: none of it may reach the PDF.
 const DECORATIONS = ['~ $', 'whoami', 'scan_me'];
 
@@ -173,18 +182,31 @@ describe.each(sources)('PDF of the $name', ({ resume, render }) => {
     for (const page of pdf.pages.slice(1)) expect(page[reading].join('\n')).not.toContain(resume.name);
   });
 
-  it('reads the name first, then the main column, then the sidebar', () => {
+  it('reads the name first, then the sidebar, then the main column', () => {
     const lines = pdf.pages[0]!.streamLines;
     expect(lines[0]).toBe(resume.name);
     // A contact line reads "<label> <value>": the value alone can also be in the main column.
     const { label, value } = resume.contact[0]!;
     const firstSidebarLine = lines.findIndex((line) => line.includes(`${label} ${value}`));
-    const mainColumnLines = (resume.experience ?? [])
-      .map((job) => lines.findIndex((line) => line.includes(job.role)))
+    // Section titles, not roles: the title of the resume is often the role of a job too.
+    const sectionLines = listSectionTitles(resume)
+      .map((title) => lines.indexOf(title))
       .filter((index) => index >= 0);
     expect(firstSidebarLine).toBeGreaterThan(0);
-    expect(mainColumnLines.length).toBeGreaterThan(0);
-    for (const index of mainColumnLines) expect(index).toBeLessThan(firstSidebarLine);
+    expect(sectionLines.length).toBeGreaterThan(0);
+    for (const index of sectionLines) expect(index).toBeGreaterThan(firstSidebarLine);
+  });
+
+  it('reads the sections one after the other, with no sidebar in between (streamLines)', () => {
+    const lines = pdf.pages.flatMap((page) => page.streamLines);
+    const sidebarTitles = listTitles(resume).filter((title) => !listSectionTitles(resume).includes(title));
+    const firstSection = Math.min(...listSectionTitles(resume).map((title) => lines.indexOf(title)));
+    expect(firstSection).toBeGreaterThan(0);
+    const { label, value } = resume.contact[0]!;
+    for (const line of lines.slice(firstSection)) {
+      expect(sidebarTitles).not.toContain(line);
+      expect(line).not.toContain(`${label} ${value}`);
+    }
   });
 });
 

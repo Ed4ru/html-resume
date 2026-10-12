@@ -1,5 +1,5 @@
 import { drawMarkedText } from './render/drawn-text.ts';
-import { buildMainColumnBlocks } from './render/main-column.ts';
+import { buildHeader, buildMainColumnBlocks } from './render/main-column.ts';
 import { paginateIntoPages } from './render/pagination.ts';
 import { renderContinuationSidebar, renderFirstPageSidebar } from './render/sidebar.ts';
 import { measureSidebarOverflow } from './render/sidebar-overflow.ts';
@@ -37,6 +37,7 @@ export const renderResume = async (resume: Resume) => {
   const container = document.getElementById('cv')!;
   container.innerHTML = '';
   paginateIntoPages(container, buildMainColumnBlocks(resume), {
+    firstPageHeader: buildHeader(resume),
     firstPageSidebar: renderFirstPageSidebar(resume),
     renderContinuationSidebar: (pageNumber) => renderContinuationSidebar(resume, pageNumber),
   });
