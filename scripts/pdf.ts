@@ -1,12 +1,13 @@
 #!/usr/bin/env node
 
-import { mkdirSync, statSync } from 'node:fs';
+import { mkdirSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import puppeteer from 'puppeteer';
 import { createServer } from 'vite-plus';
 import { errorMessage, hasExtension, parseCliArgs, resolveUserPath } from './cli.ts';
 import { assertNoFallbackFonts, assertNoSynthesizedFonts } from './font-check.ts';
+import { addPdfMetadata, resumeMetadata } from './pdf-metadata.ts';
 import { DATA_FILE_ENV, EXAMPLE_DATA_FILE, readResume } from './resume-data.ts';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
@@ -31,10 +32,10 @@ const resolvePaths = () => {
   if (statSync(pdfFile, { throwIfNoEntry: false })?.isDirectory()) {
     throw new Error(`--out is a directory: ${pdfFile}`);
   }
-  return { dataFile, pdfFile };
+  return { dataFile, pdfFile, resume };
 };
 
-const printPdf = async ({ dataFile, pdfFile }: ReturnType<typeof resolvePaths>) => {
+const printPdf = async ({ dataFile, pdfFile, resume }: ReturnType<typeof resolvePaths>) => {
   process.env[DATA_FILE_ENV] = dataFile;
   // The Vite dev server compiles the TypeScript page on the fly, as in the preview.
   const server = await createServer({
@@ -73,7 +74,8 @@ const printPdf = async ({ dataFile, pdfFile }: ReturnType<typeof resolvePaths>) 
     await assertNoSynthesizedFonts(page);
 
     mkdirSync(dirname(pdfFile), { recursive: true });
-    await page.pdf({ path: pdfFile, preferCSSPageSize: true, printBackground: true });
+    const pdf = await page.pdf({ preferCSSPageSize: true, printBackground: true });
+    writeFileSync(pdfFile, addPdfMetadata(pdf, resumeMetadata(resume)));
     console.log(pdfFile);
   } catch (err) {
     console.error(errorMessage(err));

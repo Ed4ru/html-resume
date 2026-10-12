@@ -31,8 +31,9 @@ afterAll(() => rmSync(dir, { recursive: true, force: true }));
 
 const lastLine = (text: string) => text.trim().split('\n').at(-1);
 
-const readPdfLines = async (file: string) =>
-  (await readPdf(new Uint8Array(readFileSync(file)))).pages.flatMap((page) => page.streamLines);
+const readPdfFile = async (file: string) => readPdf(new Uint8Array(readFileSync(file)));
+
+const readPdfLines = async (file: string) => (await readPdfFile(file)).pages.flatMap((page) => page.streamLines);
 
 describe('pnpm pdf', () => {
   it(
@@ -70,6 +71,29 @@ describe('pnpm pdf', () => {
       expect(code).toBe(0);
       expect(lastLine(stdout)).toBe(file);
       expect(await readPdfLines(file)).toContain('Jane "Q" Téster');
+    },
+    TIMEOUT,
+  );
+
+  it(
+    'adds the name, the title and the technologies to the PDF metadata',
+    async () => {
+      const data = join(dir, 'metadata.json');
+      writeFileSync(data, JSON.stringify({ ...resume, name: 'Jane "Q" Téster' }));
+      const out = join(dir, 'metadata.pdf');
+
+      const { code } = await runScript('node', ['scripts/pdf.ts', '--data', data, '--out', out], { cwd: root });
+      const { info, pages } = await readPdfFile(out);
+
+      expect(code).toBe(0);
+      expect(info).toMatchObject({
+        Title: expect.stringContaining('Jane "Q" Téster'),
+        Author: 'Jane "Q" Téster',
+        Subject: resume.title,
+        Keywords: 'Prospecting, Negotiation, CRM, Spreadsheets',
+      });
+      // The text Chrome wrote stays readable after the update.
+      expect(pages[0]!.streamLines[0]).toBe('Jane "Q" Téster');
     },
     TIMEOUT,
   );

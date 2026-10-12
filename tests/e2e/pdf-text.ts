@@ -61,6 +61,8 @@ export interface PdfFont {
 export interface PdfText {
   pages: PdfPage[];
   fonts: PdfFont[];
+  // The Info dictionary: Title, Author, Subject, Keywords...
+  info: Record<string, unknown>;
 }
 
 const baseline = (item: TextItem) => item.transform[5] ?? 0;
@@ -166,7 +168,9 @@ export const readPdf = async (data: Uint8Array): Promise<PdfText> => {
   const document = await loadingTask.promise;
   const pages: PdfPage[] = [];
   const fonts = new Map<string, PdfFont>();
+  let info: Record<string, unknown>;
   try {
+    info = (await document.getMetadata()).info as Record<string, unknown>;
     for (let pageNumber = 1; pageNumber <= document.numPages; pageNumber++) {
       const page = await document.getPage(pageNumber);
       const items = (await page.getTextContent()).items.filter((item): item is TextItem => 'str' in item);
@@ -190,5 +194,5 @@ export const readPdf = async (data: Uint8Array): Promise<PdfText> => {
   } finally {
     await loadingTask.destroy();
   }
-  return { pages, fonts: [...fonts.values()] };
+  return { pages, fonts: [...fonts.values()], info };
 };
