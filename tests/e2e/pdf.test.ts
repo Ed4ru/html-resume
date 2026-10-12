@@ -178,6 +178,13 @@ describe.each(sources)('PDF of the $name', ({ resume, render }) => {
     }
   });
 
+  // Parsers that join the pages, such as OpenResume, read it with the last line of the previous page,
+  // instead of the first line of the page.
+  it.each(READINGS)('starts each next page with a period on its own line (%s)', (reading) => {
+    for (const page of pdf.pages.slice(1)) expect(page[reading][0]).toBe('.');
+    expect(pdf.pages[0]![reading][0]).not.toBe('.');
+  });
+
   it.each(READINGS)('reads the name only on the first page (%s)', (reading) => {
     for (const page of pdf.pages.slice(1)) expect(page[reading].join('\n')).not.toContain(resume.name);
   });
@@ -240,7 +247,8 @@ describe('PDF text', () => {
     expect(continuedPages.length).toBeGreaterThan(0);
     expect(bulletLines).not.toContain(-1);
     expect(bulletLines).toEqual([...bulletLines].sort((a, b) => a - b));
-    for (const page of continuedPages) expect(page.streamLines[0]).toMatch(/^• Deal \d+:/);
+    // After the period that starts each next page.
+    for (const page of continuedPages) expect(page.streamLines[1]).toMatch(/^• Deal \d+:/);
   });
 
   it.each(READINGS)('keeps accents, quotes, < and & (%s)', async (reading) => {

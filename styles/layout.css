@@ -74,6 +74,16 @@
   gap: 16px;
 }
 
+/* Above the first line of the page, so that PDF readers do not read it on the same line
+   (src/render/pagination.ts). Takes no room: its bottom margin cancels its top margin and the gap
+   of the continued sidebar. */
+.page__start {
+  height: 0;
+  margin: -30px 0 calc(30px - 16px);
+  line-height: 1;
+  color: transparent;
+}
+
 /* Margins, not gap: src/render/pagination.ts moves blocks across pages. */
 .page__flow > * + * {
   margin-top: 13px;

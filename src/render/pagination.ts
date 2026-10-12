@@ -31,13 +31,19 @@ const createBlockElement = (block: Block) => {
 // Chrome writes the text in the order of the DOM, which ATS parsers read: the header of the first
 // page, then the sidebar, then the main column. A page that continues a section thus follows the
 // previous one, with no sidebar in between. styles/layout.css places them in the grid.
+// A transparent period, read as a line of its own at the top of each next page. Parsers that join the
+// text of all pages, such as OpenResume, otherwise read the last line of a page and the first line of
+// the next one as one line, and miss a section title at the top of a page. A period: neither a bullet,
+// a separator nor a title for them.
+const PAGE_START_MARK = '<span class="page__start" aria-hidden="true">.</span>';
+
 const appendPage = (container: HTMLElement, sidebarHtml: string, headerHtml?: string) => {
   const page = document.createElement('section');
   page.className = 'page';
   page.innerHTML = `
     <div class="page__layout">
       ${headerHtml ? `<div class="page__header">${headerHtml}</div>` : ''}
-      <aside class="page__sidebar${headerHtml ? '' : ' page__sidebar--continued'}">${sidebarHtml}</aside>
+      <aside class="page__sidebar${headerHtml ? '' : ' page__sidebar--continued'}">${headerHtml ? '' : PAGE_START_MARK}${sidebarHtml}</aside>
       <main class="page__main${headerHtml ? ' page__main--after-header' : ''}"><div class="page__flow"></div></main>
     </div>`;
   container.append(page);
