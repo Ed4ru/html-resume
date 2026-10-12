@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { build, createServer, type InlineConfig } from 'vite-plus';
 import { afterAll, afterEach, describe, expect, it, vi } from 'vite-plus/test';
-import { resume } from '../tests/fixtures/resume.ts';
+import { PHOTO_SRC, resumeData, writePhotoFile } from '../tests/fixtures/resume.ts';
 import { assertDataFile, DATA_FILE_ENV, EXAMPLE_DATA_FILE, readResume, resumeDataPlugin } from './resume-data.ts';
 
 const dir = mkdtempSync(join(tmpdir(), 'resume-data-'));
@@ -17,6 +17,12 @@ const writeData = (text: string) => {
   return file;
 };
 const writeJson = (data: unknown) => writeData(JSON.stringify(data));
+
+// Photos next to the data files.
+const PHOTO_BYTES = Buffer.from(PHOTO_SRC.slice(PHOTO_SRC.indexOf(',') + 1), 'base64');
+writePhotoFile(dir);
+writeFileSync(join(dir, 'photo.JPG'), PHOTO_BYTES);
+writeFileSync(join(dir, 'photo.gif'), PHOTO_BYTES);
 
 const directory = join(dir, 'directory.json');
 mkdirSync(directory);
@@ -32,7 +38,7 @@ const errorOf = (fn: () => unknown) => {
 
 describe('assertDataFile', () => {
   it('accepts a file', () => {
-    expect(() => assertDataFile(writeJson(resume))).not.toThrow();
+    expect(() => assertDataFile(writeJson(resumeData))).not.toThrow();
   });
 
   it('names a missing file', () => {
@@ -46,18 +52,48 @@ describe('assertDataFile', () => {
 
   it('names a file that is not a .json file', () => {
     const file = join(dir, 'data.txt');
-    writeFileSync(file, JSON.stringify(resume));
+    writeFileSync(file, JSON.stringify(resumeData));
     expect(() => assertDataFile(file)).toThrow(`Data file must be a .json file: ${file}`);
   });
 });
 
 describe('readResume', () => {
-  it('returns the example data', () => {
-    expect(readResume(EXAMPLE_DATA_FILE)).toEqual(JSON.parse(readFileSync(EXAMPLE_DATA_FILE, 'utf8')));
+  it('returns the example data, with its photo embedded', () => {
+    const data = JSON.parse(readFileSync(EXAMPLE_DATA_FILE, 'utf8'));
+    const photo = readFileSync(new URL('../data/example-photo.png', import.meta.url)).toString('base64');
+    expect(readResume(EXAMPLE_DATA_FILE)).toEqual({ ...data, photo: { src: `data:image/png;base64,${photo}` } });
+  });
+
+  it('embeds the photo, found next to the data file', () => {
+    expect(readResume(writeJson(resumeData)).photo).toEqual({
+      src: `data:image/png;base64,${PHOTO_BYTES.toString('base64')}`,
+      alt: 'Portrait of Jane',
+    });
+  });
+
+  it('reads the type of the photo from its extension, in any case', () => {
+    const { photo } = readResume(writeJson({ ...resumeData, photo: { src: 'photo.JPG' } }));
+    expect(photo?.src).toMatch(/^data:image\/jpeg;base64,/);
+  });
+
+  it('names a missing photo', () => {
+    const file = writeJson({ ...resumeData, photo: { src: 'missing.png' } });
+    expect(() => readResume(file)).toThrow(`Photo not found: ${join(dir, 'missing.png')}`);
+  });
+
+  it('names a photo of another format', () => {
+    const file = writeJson({ ...resumeData, photo: { src: 'photo.gif' } });
+    expect(() => readResume(file)).toThrow(
+      `Photo must be a .jpg, .jpeg, .png or .webp file: ${join(dir, 'photo.gif')}`,
+    );
+  });
+
+  it('accepts a resume without a photo', () => {
+    expect(readResume(writeJson({ ...resumeData, photo: undefined })).photo).toBeUndefined();
   });
 
   it('accepts a link to the JSON Schema', () => {
-    expect(() => readResume(writeJson({ $schema: './schema.json', ...resume }))).not.toThrow();
+    expect(() => readResume(writeJson({ $schema: './schema.json', ...resumeData }))).not.toThrow();
   });
 
   it('names a file that is not valid JSON', () => {
@@ -71,12 +107,12 @@ describe('readResume', () => {
 
   it.each([
     ['a root that is not an object', null, /^\s*\(root\): /m],
-    ['a missing required field', { ...resume, name: undefined }, /^\s*name: missing required field$/m],
-    ['an unsupported language', { ...resume, lang: 'de' }, /^\s*lang: /m],
-    ['an unknown field', { ...resume, expertize: [] }, /^\s*expertize: unknown field$/m],
+    ['a missing required field', { ...resumeData, name: undefined }, /^\s*name: missing required field$/m],
+    ['an unsupported language', { ...resumeData, lang: 'de' }, /^\s*lang: /m],
+    ['an unknown field', { ...resumeData, expertize: [] }, /^\s*expertize: unknown field$/m],
     [
       'an unknown nested field',
-      { ...resume, settings: { ...resume.settings, theme: 'dark' } },
+      { ...resumeData, settings: { ...resumeData.settings, theme: 'dark' } },
       /^\s*settings\.theme: unknown field$/m,
     ],
   ])('reports %s on a line starting with its path', (_, data, line) => {
@@ -84,7 +120,7 @@ describe('readResume', () => {
   });
 
   it('reports every error, one per line', () => {
-    const file = writeJson({ ...resume, name: undefined, lang: 'de', expertize: [] });
+    const file = writeJson({ ...resumeData, name: undefined, lang: 'de', expertize: [] });
     const { message } = errorOf(() => readResume(file));
     expect(message).toMatch(/^\s*name: /m);
     expect(message).toMatch(/^\s*lang: /m);
@@ -101,18 +137,18 @@ describe('resumeDataPlugin', () => {
   };
 
   it('serves the file named by the environment', async () => {
-    vi.stubEnv(DATA_FILE_ENV, writeJson(resume));
+    vi.stubEnv(DATA_FILE_ENV, writeJson(resumeData));
     const server = await createServer({ ...inlineConfig, server: { middlewareMode: true, ws: false } });
     try {
       const result = await server.transformRequest('virtual:resume-data');
-      expect(result?.code).toContain(resume.name);
+      expect(result?.code).toContain(resumeData.name);
     } finally {
       await server.close();
     }
   });
 
   it('builds the example, whatever the environment', async () => {
-    vi.stubEnv(DATA_FILE_ENV, writeJson(resume));
+    vi.stubEnv(DATA_FILE_ENV, writeJson(resumeData));
     const output = await build({
       ...inlineConfig,
       // Without the entry's exports, the unused data would be left out of the bundle.
@@ -121,6 +157,6 @@ describe('resumeDataPlugin', () => {
     if (!('output' in output)) throw new Error('Expected a single build output');
     const code = output.output[0].code;
     expect(code).toContain(readResume(EXAMPLE_DATA_FILE).name);
-    expect(code).not.toContain(resume.name);
+    expect(code).not.toContain(resumeData.name);
   });
 });

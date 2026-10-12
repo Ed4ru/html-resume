@@ -1,74 +1,3 @@
-.header {
-  display: grid;
-  gap: 7px;
-}
-
-/* No text element is positioned: Chrome paints positioned elements last, which scrambles
-   the text order read by ATS. The prompt follows the name in the DOM and grid-row moves it up. */
-.prompt {
-  grid-row: 1;
-  font-family: var(--mono);
-  font-size: 10.5px;
-  color: oklch(0.55 0.02 265);
-}
-
-.prompt__tilde {
-  color: oklch(0.55 0.15 155);
-}
-
-.prompt__cursor {
-  display: inline-block;
-  width: 6px;
-  height: 11px;
-  margin-left: 3px;
-  vertical-align: -1px;
-  background: var(--accent);
-}
-
-.header__name {
-  font-size: 38px;
-  line-height: 1;
-  font-weight: 800;
-  letter-spacing: -0.035em;
-  /* Without it, the tight letter-spacing makes PDF extractors drop the spaces between words. */
-  word-spacing: 0.05em;
-}
-
-.header--with-prompt .header__name {
-  grid-row: 2;
-}
-
-.header__headline {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.header__title {
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--accent);
-}
-
-.header__tag {
-  font-family: var(--mono);
-  font-size: 10px;
-  font-weight: 500;
-  padding: 2px 7px;
-  border: 1px solid var(--accent);
-  color: var(--accent);
-  border-radius: 3px;
-}
-
-.header__summary {
-  margin-top: 4px;
-  font-size: 11.5px;
-  line-height: 1.6;
-  color: var(--text);
-  text-wrap: pretty;
-}
-
 .section-title {
   display: flex;
   align-items: center;
@@ -180,11 +109,13 @@
   gap: 3px;
 }
 
+/* The dates follow the title instead of being aligned right: on a page with no text in the sidebar,
+   macOS Preview (PDFKit) reads an empty gap under right-aligned dates as two columns, and reads the
+   dates after the bullets of a short entry. Neither a drawn line nor spaces fill that gap for it. */
 .entry__head {
   display: flex;
-  justify-content: space-between;
   align-items: baseline;
-  gap: 12px;
+  column-gap: 14px;
 }
 
 .entry__title {

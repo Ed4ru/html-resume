@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import puppeteer, { type Page } from 'puppeteer';
 import { afterAll, describe, expect, inject, it } from 'vite-plus/test';
-import { resume } from '../fixtures/resume.ts';
+import { resumeData as resume, writePhotoFile } from '../fixtures/resume.ts';
 import { waitUntilReady } from './preview.ts';
 import { runScript, scriptEnv } from './run-script.ts';
 
@@ -15,6 +15,8 @@ const root = fileURLToPath(new URL('../..', import.meta.url));
 const TIMEOUT = 60_000;
 
 const dir = mkdtempSync(join(tmpdir(), 'preview-script-'));
+// The photo named by the data files written below, next to them.
+writePhotoFile(dir);
 afterAll(() => rmSync(dir, { recursive: true, force: true }));
 
 const waitForUrl = (child: ChildProcess) =>

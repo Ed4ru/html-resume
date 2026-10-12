@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vite-plus/test';
 import { assertNoFallbackFonts, assertNoSynthesizedFonts } from '../../scripts/font-check.ts';
 import {
+  createHeavyPhotoSrc,
   fallbackFontsResume,
   LONG_JOB_BULLETS,
   longJobResume,
@@ -189,6 +190,72 @@ describe('sidebar overflow', () => {
   it('does not warn when the sidebar fits', async () => {
     await preview.render(resume);
     expect(preview.warnings).toEqual([]);
+  });
+});
+
+describe('header', () => {
+  // macOS Preview (PDFKit) reads a page column by column, from the left: the name must start in the
+  // column of the sidebar, or the sidebar is read first. Not testable in CI: PDFKit only runs on macOS.
+  it.each([
+    ['with', resume],
+    ['without', { ...resume, photo: undefined }],
+  ])('starts the name left of the sidebar edge, %s a photo', async (_, data) => {
+    await preview.render(data);
+    const { nameLeft, sidebarRight } = await preview.page.$eval('#cv .page', (page) => ({
+      nameLeft: page.querySelector('.header__name')!.getBoundingClientRect().left,
+      sidebarRight: page.querySelector('.page__sidebar')!.getBoundingClientRect().right,
+    }));
+    expect(nameLeft).toBeLessThan(sidebarRight);
+  });
+
+  // pdfminer.six reads a label apart from its value when they are more than about two characters
+  // apart. Not testable in CI: pdfminer is a Python library, outside pnpm install.
+  it('ends each contact label right before its value', async () => {
+    await preview.render(resume);
+    // The extent of the text, not of the label element, which the grid can stretch.
+    const gaps = await preview.page.$$eval('.masthead__contact .contact__label', (labels) =>
+      labels.map((label) => {
+        const range = document.createRange();
+        range.selectNodeContents(label);
+        return label.nextElementSibling!.getBoundingClientRect().left - range.getBoundingClientRect().right;
+      }),
+    );
+    expect(gaps.length).toBe(resume.contact.length);
+    for (const gap of gaps) expect(gap).toBeLessThanOrEqual(8.5);
+  });
+
+  // macOS Preview (PDFKit) otherwise reads them before the summary when the tag wraps under the title.
+  it('puts the contact details at the bottom of the band', async () => {
+    await preview.render({ ...resume, title: 'Commander of the Imperial Fleet and of the Death Star' });
+    const { contactBottom, mastheadBottom } = await preview.page.$eval('#cv .masthead', (masthead) => ({
+      contactBottom: masthead.querySelector('.masthead__contact')!.getBoundingClientRect().bottom,
+      mastheadBottom: masthead.getBoundingClientRect().bottom,
+    }));
+    expect(contactBottom).toBeCloseTo(mastheadBottom, 0);
+  });
+
+  it('warns about a photo over 500 KB, and still renders', async () => {
+    await preview.render({ ...resume, photo: { src: createHeavyPhotoSrc() } });
+    expect(await preview.page.$eval('.toolbar__name', (element) => element.textContent)).toContain('Photo too heavy');
+    expect(preview.warnings).toEqual([expect.stringMatching(/^Photo of \d+ KB, over 500 KB/)]);
+    expect(await preview.page.$$eval('#cv .page', (pages) => pages.length)).toBeGreaterThan(0);
+  });
+});
+
+describe('entries', () => {
+  // macOS Preview (PDFKit) reads right-aligned dates apart from a short entry on the next pages.
+  // Not testable in CI: PDFKit only runs on macOS.
+  it('puts each date right after its title', async () => {
+    await preview.render(resume);
+    const gaps = await preview.page.$$eval('#cv .entry__head', (heads) =>
+      heads.flatMap((head) => {
+        const dates = head.querySelector('.entry__dates');
+        const title = dates?.previousElementSibling;
+        return dates && title ? [dates.getBoundingClientRect().left - title.getBoundingClientRect().right] : [];
+      }),
+    );
+    expect(gaps.length).toBeGreaterThan(0);
+    for (const gap of gaps) expect(gap).toBeLessThanOrEqual(14.5);
   });
 });
 

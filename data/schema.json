@@ -51,6 +51,27 @@
       "additionalProperties": false,
       "description": "Display options."
     },
+    "photo": {
+      "type": "object",
+      "properties": {
+        "src": {
+          "type": "string",
+          "description": "Photo file, relative to this data file: .jpg, .jpeg, .png or .webp. Over 500 KB, a warning.",
+          "examples": [
+            "photo.jpg"
+          ]
+        },
+        "alt": {
+          "type": "string",
+          "description": "Text read by screen readers. The name by default."
+        }
+      },
+      "required": [
+        "src"
+      ],
+      "additionalProperties": false,
+      "description": "Photo at the left of the header. Absent: no photo."
+    },
     "name": {
       "type": "string",
       "description": "Full name, main heading of the resume."
@@ -103,7 +124,7 @@
         ],
         "additionalProperties": false
       },
-      "description": "Sidebar contact details, in display order."
+      "description": "Contact details at the right of the header, in display order. Read as \"label: value\"."
     },
     "expertise": {
       "type": "array",

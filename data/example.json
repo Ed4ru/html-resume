@@ -8,6 +8,7 @@
       "label": "Wikipedia profile"
     }
   },
+  "photo": { "src": "example-photo.png" },
   "name": "Dwight K. Schrute III",
   "title": "Regional Manager",
   "tag": "Paper · Beets",

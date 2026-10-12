@@ -17,7 +17,8 @@ afterEach(async () => {
 // renderers, a first page and a next page, then measures every drawn element and its parent before and
 // after drawing.
 const MEASURE_DRAWING = `async (resume) => {
-  const { buildHeader, buildMainColumnBlocks } = await import('/src/render/main-column.ts');
+  const { buildHeader } = await import('/src/render/header.ts');
+  const { buildMainColumnBlocks } = await import('/src/render/main-column.ts');
   const { renderContinuationSidebar, renderFirstPageSidebar } = await import('/src/render/sidebar.ts');
   const { drawMarkedText } = await import('/src/render/drawn-text.ts');
   const createPage = (mainHtml, sidebarHtml, sidebarModifier) => {

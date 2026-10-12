@@ -48,21 +48,28 @@ to get completion in editors.
   and `contact`. A missing optional section is not rendered.
 - An unknown key is an error.
 - Rich text fields accept `**bold**`, and `→`, drawn as an arrow.
+- `photo.src` names a `.jpg`, `.jpeg`, `.png` or `.webp` file, relative to the data file. Over 500 KB, the preview and
+  `pnpm pdf` warn about it.
 
 ## Layout
 
-The main column flows over as many A4 pages as needed. An experience or education entry that does not fit is
-split between two of its list items, keeping at least one with its title and carrying at least two to the next page,
-or one when it only has two; otherwise, it moves whole to the next page. The full sidebar only fits on the first page:
-when it overflows, the preview and `pnpm pdf` warn about it.
+The first page opens with a band across the page: the photo, the name, title and summary, then the contact details. The
+main column flows over as many A4 pages as needed. An experience or education entry that does not fit is split between
+two of its list items, keeping at least one with its title and carrying at least two to the next page, or one when it
+only has two; otherwise, it moves whole to the next page. The full sidebar only fits on the first page: when it
+overflows, the preview and `pnpm pdf` warn about it.
 
 ## ATS compatibility
 
 The PDF text is meant to be read by applicant tracking systems: static fonts, with a real italic, a reading order that
-puts the name, then the sidebar, then the main column, real bullets and hyphens under the drawn markers, transparent
-commas between tags, decorations drawn as paths without text (section numbers, `//`, the `whoami` line, the tag, the QR
-code caption and the sidebar of the next pages), and spacing that keeps words whole for PDF extractors. The tests read
-the PDF as an ATS does. Each choice is explained in comments in `styles/`, `src/` and `scripts/pdf.ts`.
+puts the name, title, summary and contact details (`label: value`), then the sidebar, then the main column, dates right
+after their title, real bullets and hyphens under the drawn markers, transparent punctuation between tags and after
+labels, decorations drawn as paths without text (section numbers, `//`, the `whoami` line, the tag, the QR code caption
+and the sidebar of the next pages), a transparent period at the top of each next page, so that parsers that join the
+pages do not read two lines as one, and spacing that keeps words whole for PDF extractors. The tests read the PDF as an
+ATS does. Each choice is explained in comments in `styles/`, `src/` and `scripts/pdf.ts`. pdfminer.six, which some
+Python resume parsers use, reads the header in order but mixes the sidebar with the main column: a page with two columns
+side by side cannot be read otherwise by it.
 
 ## Contributing
 

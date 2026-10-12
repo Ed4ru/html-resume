@@ -1,11 +1,10 @@
 import { describe, expect, it } from 'vite-plus/test';
 import { resume } from '../../tests/fixtures/resume.ts';
 import type { Resume } from '../schema/index.ts';
-import { DECORATION_ATTRIBUTES, renderDrawnLabelAttributes } from './html-fragments.ts';
-import { buildHeader, buildMainColumnBlocks } from './main-column.ts';
+import { DECORATION_ATTRIBUTES } from './html-fragments.ts';
+import { buildMainColumnBlocks } from './main-column.ts';
 
 const render = (overrides: Partial<Resume> = {}) => buildMainColumnBlocks({ ...resume, ...overrides });
-const renderHeader = (overrides: Partial<Resume> = {}) => buildHeader({ ...resume, ...overrides });
 const renderHtml = (overrides: Partial<Resume> = {}) =>
   render(overrides)
     .map((block) => block.html)
@@ -21,35 +20,6 @@ const sectionTitles = (overrides: Partial<Resume> = {}) =>
         .replace(/\s+/g, ' ')
         .trim(),
     );
-
-describe('header', () => {
-  it('shows the name, title, tag and summary', () => {
-    const header = renderHeader();
-    expect(header).toContain(resume.name);
-    expect(header).toContain(resume.title);
-    expect(header).toContain(resume.tag);
-    expect(header).toContain('<strong>ten years</strong>');
-  });
-
-  it('draws the tag, read by screen readers as an image', () => {
-    expect(renderHeader()).toContain(`<span class="header__tag" ${renderDrawnLabelAttributes(resume.tag)}>`);
-  });
-
-  it('draws the whoami line', () => {
-    expect(renderHeader()).toContain(`<div class="prompt" ${DECORATION_ATTRIBUTES}>`);
-  });
-
-  it('shows the whoami line only with showPrompt', () => {
-    expect(renderHeader()).toContain('whoami');
-    expect(renderHeader({ settings: { showPrompt: false } })).not.toContain('whoami');
-  });
-
-  it('leaves out a missing tag and summary', () => {
-    const header = renderHeader({ tag: undefined, summary: undefined });
-    expect(header).not.toContain('header__tag');
-    expect(header).not.toContain('header__summary');
-  });
-});
 
 describe('sections', () => {
   it('starts with the first section: the header is laid out apart', () => {

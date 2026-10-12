@@ -13,7 +13,7 @@ import { basename, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterAll, describe, expect, it } from 'vite-plus/test';
 import { getLabels } from '../../src/render/labels.ts';
-import { resume } from '../fixtures/resume.ts';
+import { resumeData as resume, writePhotoFile } from '../fixtures/resume.ts';
 import { readPdf } from './pdf-text.ts';
 import { runScript } from './run-script.ts';
 
@@ -25,6 +25,8 @@ const TIMEOUT = 60_000;
 // A space, an accent and an apostrophe, which a path must survive through pnpm and the shell. Its
 // real path (/private/var on macOS): pnpm sets INIT_CWD to the working directory with links resolved.
 const dir = realpathSync(mkdtempSync(join(tmpdir(), "html-resume l'é ")));
+// The photo named by the data files written below, next to them.
+writePhotoFile(dir);
 afterAll(() => rmSync(dir, { recursive: true, force: true }));
 
 const lastLine = (text: string) => text.trim().split('\n').at(-1);

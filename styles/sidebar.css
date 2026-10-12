@@ -17,26 +17,9 @@
   color: var(--aside-accent);
 }
 
-.contact {
-  display: grid;
-  grid-template-columns: 44px minmax(0, 1fr);
-  row-gap: 5px;
-  font-size: 11px;
-}
-
-.contact__label {
-  font-family: var(--mono);
-  font-size: 10px;
-  color: var(--aside-muted);
-}
-
-.contact__link {
+/* The ink color of strong (styles/base.css) would not show on the dark background. */
+.page__sidebar strong {
   color: var(--aside-fg);
-}
-
-.contact__link--accent {
-  color: var(--aside-accent-strong);
-  font-weight: 500;
 }
 
 .expertise {

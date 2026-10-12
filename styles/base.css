@@ -78,11 +78,12 @@ strong {
 /* List separators (src/render/html-fragments.ts): transparent punctuation in a box without width,
    so it changes no size, and its glyph overflows into the padding of the list item. A negative
    margin instead makes Chrome round the item too narrow for its text, which then wraps. The
-   --before one is moved one character to the left, ahead of the next text. */
+   --before one is moved one character to the left, ahead of the next text. Its spaces are kept
+   (white-space: pre): at the end of the box, they would be collapsed otherwise. */
 .list-separator {
   display: inline-block;
   width: 0;
-  white-space: nowrap;
+  white-space: pre;
   color: transparent;
 }
 

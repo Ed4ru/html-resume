@@ -1,0 +1,128 @@
+/* Band at the top of the first page (src/render/header.ts): photo, name and summary, contact details. */
+.masthead {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: 26px;
+  align-items: start;
+}
+
+/* 92px plus the gap: the name starts at x = 144px, left of the sidebar's edge (236px). */
+.masthead--with-photo {
+  grid-template-columns: 92px minmax(0, 1fr) auto;
+}
+
+.masthead__photo {
+  display: block;
+  width: 92px;
+  height: 92px;
+  object-fit: cover;
+  border-radius: 6px;
+  box-shadow: 0 0 0 1px var(--rule);
+}
+
+/* At the bottom of the band, level with the summary: macOS Preview (PDFKit) reads the contact details
+   before the summary when they face the title, as soon as the tag wraps to a line of its own. */
+.masthead__contact {
+  align-self: end;
+}
+
+.header {
+  display: grid;
+  gap: 7px;
+}
+
+/* No text element is positioned: Chrome paints positioned elements last, which scrambles
+   the text order read by ATS. The prompt follows the name in the DOM and grid-row moves it up. */
+.prompt {
+  grid-row: 1;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: oklch(0.55 0.02 265);
+}
+
+.prompt__tilde {
+  color: oklch(0.55 0.15 155);
+}
+
+.prompt__cursor {
+  display: inline-block;
+  width: 6px;
+  height: 11px;
+  margin-left: 3px;
+  vertical-align: -1px;
+  background: var(--accent);
+}
+
+.header__name {
+  font-size: 36px;
+  line-height: 1;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  /* Without it, the tight letter-spacing makes PDF extractors drop the spaces between words. */
+  word-spacing: 0.05em;
+}
+
+.header--with-prompt .header__name {
+  grid-row: 2;
+}
+
+.header__headline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.header__title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.header__tag {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 500;
+  padding: 2px 7px;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  border-radius: 3px;
+}
+
+/* pdfminer.six, which many Python resume parsers use, groups lines into one block only when they are
+   less than half a line height apart; looser, it mixes the summary with the contact details. */
+.header__summary {
+  margin-top: 4px;
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--text);
+  text-wrap: pretty;
+}
+
+/* Each label ends right before its value: pdfminer.six splits a line where two characters are more
+   than about two characters apart, and read "city:" apart from "Scranton, PA" with left-aligned
+   labels. Rows close enough to form one block, for the same reason as the summary. */
+.contact {
+  display: grid;
+  grid-template-columns: max-content auto;
+  column-gap: 8px;
+  row-gap: 3px;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.contact__label {
+  justify-self: end;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.contact__link {
+  color: var(--ink);
+}
+
+.contact__link--accent {
+  color: var(--accent);
+  font-weight: 500;
+}

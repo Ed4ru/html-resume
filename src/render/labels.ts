@@ -6,7 +6,6 @@ export interface Labels {
   experienceSection: string;
   educationSection: string;
   projectsSection: string;
-  contactBlock: string;
   expertiseBlock: string;
   stackBlock: string;
   languagesBlock: string;
@@ -18,7 +17,6 @@ const LABELS: Record<Lang, Labels> = {
     experienceSection: 'Expérience professionnelle',
     educationSection: 'Formation',
     projectsSection: 'Projets personnels',
-    contactBlock: 'Contact',
     expertiseBlock: 'Compétences',
     stackBlock: 'Compétences techniques',
     languagesBlock: 'Langues',
@@ -28,7 +26,6 @@ const LABELS: Record<Lang, Labels> = {
     experienceSection: 'Experience',
     educationSection: 'Education',
     projectsSection: 'Personal projects',
-    contactBlock: 'Contact',
     expertiseBlock: 'Skills',
     stackBlock: 'Technical skills',
     languagesBlock: 'Languages',
