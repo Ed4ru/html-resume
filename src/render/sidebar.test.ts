@@ -10,11 +10,14 @@ const render = (overrides: Partial<Resume> = {}) => renderFirstPageSidebar({ ...
 const sidebarTitle = (title: string) => `<span ${DECORATION_ATTRIBUTES}>// </span>${title}</div>`;
 
 describe('first page sidebar', () => {
-  it('links a contact with href, in the accent color when asked', () => {
-    const html = render();
-    expect(html).toContain('href="mailto:jane@example.com">jane@example.com</a>');
-    expect(html).toContain('contact__link--accent" href="https://example.com"');
-    expect(html).toContain('<span>Scranton, PA</span>');
+  it('leaves the contact details to the header', () => {
+    expect(render()).not.toContain('jane@example.com');
+  });
+
+  it('reads each language level in parentheses', () => {
+    expect(render()).toContain(
+      `<span class="language__level">${renderListSeparator('(', 'before')}native${renderListSeparator(')')}</span>`,
+    );
   });
 
   it('uses the labels of the resume language', () => {

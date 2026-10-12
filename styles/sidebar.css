@@ -17,28 +17,6 @@
   color: var(--aside-accent);
 }
 
-.contact {
-  display: grid;
-  grid-template-columns: 44px minmax(0, 1fr);
-  row-gap: 5px;
-  font-size: 11px;
-}
-
-.contact__label {
-  font-family: var(--mono);
-  font-size: 10px;
-  color: var(--aside-muted);
-}
-
-.contact__link {
-  color: var(--aside-fg);
-}
-
-.contact__link--accent {
-  color: var(--aside-accent-strong);
-  font-weight: 500;
-}
-
 .expertise {
   display: flex;
   flex-direction: column;

@@ -1,5 +1,5 @@
 import { renderSVG } from 'uqr';
-import type { Contact, Language, Qr, Resume, StackGroup, Technology } from '../schema/index.ts';
+import type { Language, Qr, Resume, StackGroup, Technology } from '../schema/index.ts';
 import {
   DECORATION_ATTRIBUTES,
   escapeHtml,
@@ -15,17 +15,6 @@ import { getLabels, type Labels } from './labels.ts';
 
 const renderSidebarSection = (title: string, content: string, modifier?: string) =>
   `<div class="sidebar-section${modifier ? ` sidebar-section--${modifier}` : ''}"><div class="sidebar-section__title"><span ${DECORATION_ATTRIBUTES}>// </span>${title}</div>${content}</div>`;
-
-const renderContactValue = (contact: Contact) =>
-  contact.href
-    ? `<a class="contact__link${contact.accent ? ' contact__link--accent' : ''}" href="${escapeHtml(contact.href)}">${escapeHtml(contact.value)}</a>`
-    : `<span>${escapeHtml(contact.value)}</span>`;
-
-const renderContact = (contact: Contact) =>
-  `<span class="contact__label">${escapeHtml(contact.label)}</span>${renderContactValue(contact)}`;
-
-const renderContactBlock = (contacts: readonly Contact[], labels: Labels) =>
-  renderSidebarSection(labels.contactBlock, `<div class="contact">${renderEach(contacts, renderContact)}</div>`);
 
 const renderExpertiseBlock = (expertise: readonly string[] | undefined, labels: Labels) =>
   renderIfPresent(expertise, (items) =>
@@ -65,7 +54,7 @@ const toGaugePercent = (value: number) => value || 0;
 
 const renderLanguage = (language: Language) => `
   <div class="language">
-    <div class="language__head"><strong class="language__name">${escapeHtml(language.name)}</strong><span class="language__level">${escapeHtml(language.level)}</span></div>
+    <div class="language__head"><strong class="language__name">${escapeHtml(language.name)}</strong><span class="language__level">${renderListSeparator('(', 'before')}${escapeHtml(language.level)}${renderListSeparator(')')}</span></div>
     <div class="language__gauge"><span class="language__gauge-fill" style="width:${toGaugePercent(language.value)}%"></span></div>
   </div>`;
 
@@ -98,7 +87,6 @@ const renderQrCode = (qr: Qr | undefined) =>
 export const renderFirstPageSidebar = (resume: Resume) => {
   const labels = getLabels(resume.lang);
   return [
-    renderContactBlock(resume.contact, labels),
     renderExpertiseBlock(resume.expertise, labels),
     renderStackBlock(resume.stack, labels),
     renderLanguagesBlock(resume.languages, labels),

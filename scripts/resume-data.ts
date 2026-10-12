@@ -1,4 +1,5 @@
 import { readFileSync, statSync } from 'node:fs';
+import { dirname, extname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as v from 'valibot';
 import { normalizePath, type Plugin } from 'vite-plus';
@@ -29,7 +30,28 @@ const formatIssue = (issue: Issue) => {
   return `${path}: ${issue.message}`;
 };
 
-export const readResume = (file: string): Resume => {
+const PHOTO_TYPES: Record<string, string> = {
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.png': 'image/png',
+  '.webp': 'image/webp',
+};
+
+export const resolvePhotoFile = (dataFile: string, src: string) => resolve(dirname(dataFile), src);
+
+// The page cannot read a file next to the data file, which can be anywhere: the photo is passed to it as
+// a data: URL, in place of its path.
+const embedPhoto = (dataFile: string, resume: Resume): Resume => {
+  if (!resume.photo) return resume;
+  const photoFile = resolvePhotoFile(dataFile, resume.photo.src);
+  const type = PHOTO_TYPES[extname(photoFile).toLowerCase()];
+  if (!type) throw new Error(`Photo must be a .jpg, .jpeg, .png or .webp file: ${photoFile}`);
+  if (!statSync(photoFile, { throwIfNoEntry: false })?.isFile()) throw new Error(`Photo not found: ${photoFile}`);
+  const src = `data:${type};base64,${readFileSync(photoFile).toString('base64')}`;
+  return { ...resume, photo: { ...resume.photo, src } };
+};
+
+const parseResume = (file: string): Resume => {
   assertDataFile(file);
   const text = readFileSync(file, 'utf8');
 
@@ -47,9 +69,13 @@ export const readResume = (file: string): Resume => {
   return result.output;
 };
 
+// The resume as the page renders it: validated, with its photo embedded.
+export const readResume = (file: string) => embedPhoto(file, parseResume(file));
+
 // The build, deployed to GitHub Pages, always shows the example, whatever the environment.
 export const resumeDataPlugin = (): Plugin => {
   let file = '';
+  let photoFile = '';
   return {
     name: 'resume-data',
     configResolved(config) {
@@ -62,13 +88,17 @@ export const resumeDataPlugin = (): Plugin => {
       if (id !== RESOLVED_MODULE_ID) return;
       // Before reading: an invalid file is watched too, so fixing it reloads the page.
       this.addWatchFile(file);
-      return `export default ${JSON.stringify(readResume(file))};`;
+      const resume = parseResume(file);
+      // Watched too, before reading it: replacing the photo reloads the page.
+      photoFile = resume.photo ? normalizePath(resolvePhotoFile(file, resume.photo.src)) : '';
+      if (photoFile) this.addWatchFile(photoFile);
+      return `export default ${JSON.stringify(embedPhoto(file, resume))};`;
     },
     // Vite alone would not reload the page after a change to a file that was already invalid when the
-    // page first loaded (it never entered the module graph), or that is reached through a symbolic link
+    // page first loaded, or to the photo, which is not a module (it never entered the module graph), or that is reached through a symbolic link
     // (such as /var → /private/var on macOS).
     hotUpdate({ file: changed }) {
-      if (changed !== file) return;
+      if (changed !== file && changed !== photoFile) return;
       const { moduleGraph, hot } = this.environment;
       const module = moduleGraph.getModuleById(RESOLVED_MODULE_ID);
       if (module) moduleGraph.invalidateModule(module);

@@ -47,7 +47,6 @@ const listTitles = (resume: Resume) => {
     [resume.experience, labels.experienceSection],
     [resume.education, labels.educationSection],
     [resume.projects, labels.projectsSection],
-    [resume.contact, labels.contactBlock],
     [resume.expertise, labels.expertiseBlock],
     [resume.stack, labels.stackBlock],
     [resume.languages, labels.languagesBlock],
@@ -87,6 +86,7 @@ const printPdf = async (resume?: Resume) => {
 const sources: { name: string; resume: Resume; render: boolean }[] = [
   { name: 'test resume', resume, render: true },
   { name: 'French test resume', resume: { ...resume, lang: 'fr' }, render: true },
+  { name: 'test resume without a photo', resume: { ...resume, photo: undefined }, render: true },
   { name: 'example data', resume: readResume(EXAMPLE_DATA_FILE), render: false },
 ];
 
@@ -182,19 +182,34 @@ describe.each(sources)('PDF of the $name', ({ resume, render }) => {
     for (const page of pdf.pages.slice(1)) expect(page[reading].join('\n')).not.toContain(resume.name);
   });
 
-  it('reads the name first, then the sidebar, then the main column', () => {
+  it('reads the name, the title, the summary and the contact details, then the sidebar, then the sections', () => {
     const lines = pdf.pages[0]!.streamLines;
     expect(lines[0]).toBe(resume.name);
-    // A contact line reads "<label> <value>": the value alone can also be in the main column.
-    const { label, value } = resume.contact[0]!;
-    const firstSidebarLine = lines.findIndex((line) => line.includes(`${label} ${value}`));
+    expect(lines[1]).toBe(resume.title);
+    // Each contact detail on its own line, right after the summary, before any title.
+    const contactLines = resume.contact.map(({ label, value }) => lines.indexOf(`${label}: ${value}`));
+    expect(contactLines).not.toContain(-1);
+    expect(contactLines).toEqual([...contactLines].sort((a, b) => a - b));
+    const sidebarTitles = listTitles(resume).filter((title) => !listSectionTitles(resume).includes(title));
+    const firstSidebarTitle = Math.min(...sidebarTitles.map((title) => lines.indexOf(title)));
+    expect(contactLines.at(-1)).toBeLessThan(firstSidebarTitle);
     // Section titles, not roles: the title of the resume is often the role of a job too.
-    const sectionLines = listSectionTitles(resume)
-      .map((title) => lines.indexOf(title))
-      .filter((index) => index >= 0);
-    expect(firstSidebarLine).toBeGreaterThan(0);
-    expect(sectionLines.length).toBeGreaterThan(0);
-    for (const index of sectionLines) expect(index).toBeGreaterThan(firstSidebarLine);
+    for (const title of listSectionTitles(resume)) {
+      const index = lines.indexOf(title);
+      if (index >= 0) expect(index).toBeGreaterThan(firstSidebarTitle);
+    }
+  });
+
+  it.each(READINGS)('reads each contact detail as "label: value" (%s)', (reading) => {
+    const text = readText(pdf, reading);
+    for (const { label, value } of resume.contact) expect(text).toContain(`${label}: ${value}`);
+  });
+
+  it('draws the photo as an image with its text alternative, and no text', () => {
+    const [first, ...next] = pdf.pages;
+    expect(first!.imageCount).toBe(resume.photo ? 1 : 0);
+    for (const page of next) expect(page.imageCount).toBe(0);
+    if (resume.photo) expect(first!.figureAlts).toContain(resume.photo.alt ?? resume.name);
   });
 
   it('reads the sections one after the other, with no sidebar in between (streamLines)', () => {
@@ -205,7 +220,7 @@ describe.each(sources)('PDF of the $name', ({ resume, render }) => {
     const { label, value } = resume.contact[0]!;
     for (const line of lines.slice(firstSection)) {
       expect(sidebarTitles).not.toContain(line);
-      expect(line).not.toContain(`${label} ${value}`);
+      expect(line).not.toContain(`${label}: ${value}`);
     }
   });
 });

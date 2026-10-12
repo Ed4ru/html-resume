@@ -24,7 +24,24 @@ export interface PdfPage {
   layoutLines: string[];
   splitWords: string[];
   mergedWords: string[];
+  // Raster images drawn on the page (the photo; the QR code is vector).
+  imageCount: number;
+  // Text alternatives of the Figure elements of the tagged structure, read by screen readers.
+  figureAlts: string[];
 }
+
+interface StructNode {
+  role?: string;
+  alt?: string;
+  children?: StructNode[];
+}
+
+const IMAGE_OPERATORS: number[] = [OPS.paintImageXObject, OPS.paintInlineImageXObject];
+
+const listFigureAlts = (node: StructNode | null | undefined): string[] => [
+  ...(node?.role === 'Figure' && node.alt ? [node.alt] : []),
+  ...(node?.children ?? []).flatMap(listFigureAlts),
+];
 
 interface Glyph {
   text: string;
@@ -166,6 +183,8 @@ export const readPdf = async (data: Uint8Array): Promise<PdfText> => {
         streamLines: readStreamLines(items),
         layoutLines: readLayoutLines(items),
         ...readWords(fnArray, argsArray as unknown[][]),
+        imageCount: fnArray.filter((fn) => IMAGE_OPERATORS.includes(fn)).length,
+        figureAlts: listFigureAlts((await page.getStructTree()) as StructNode),
       });
     }
   } finally {

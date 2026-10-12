@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vite-plus/test';
 import { assertNoFallbackFonts, assertNoSynthesizedFonts } from '../../scripts/font-check.ts';
 import {
+  createHeavyPhotoSrc,
   fallbackFontsResume,
   LONG_JOB_BULLETS,
   longJobResume,
@@ -189,6 +190,29 @@ describe('sidebar overflow', () => {
   it('does not warn when the sidebar fits', async () => {
     await preview.render(resume);
     expect(preview.warnings).toEqual([]);
+  });
+});
+
+describe('header', () => {
+  // macOS Preview (PDFKit) reads a page column by column, from the left: the name must start in the
+  // column of the sidebar, or the sidebar is read first. Not testable in CI: PDFKit only runs on macOS.
+  it.each([
+    ['with', resume],
+    ['without', { ...resume, photo: undefined }],
+  ])('starts the name left of the sidebar edge, %s a photo', async (_, data) => {
+    await preview.render(data);
+    const { nameLeft, sidebarRight } = await preview.page.$eval('#cv .page', (page) => ({
+      nameLeft: page.querySelector('.header__name')!.getBoundingClientRect().left,
+      sidebarRight: page.querySelector('.page__sidebar')!.getBoundingClientRect().right,
+    }));
+    expect(nameLeft).toBeLessThan(sidebarRight);
+  });
+
+  it('warns about a photo over 500 KB, and still renders', async () => {
+    await preview.render({ ...resume, photo: { src: createHeavyPhotoSrc() } });
+    expect(await preview.page.$eval('.toolbar__name', (element) => element.textContent)).toContain('Photo too heavy');
+    expect(preview.warnings).toEqual([expect.stringMatching(/^Photo of \d+ KB, over 500 KB/)]);
+    expect(await preview.page.$$eval('#cv .page', (pages) => pages.length)).toBeGreaterThan(0);
   });
 });
 

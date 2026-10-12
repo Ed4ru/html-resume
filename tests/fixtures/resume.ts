@@ -1,5 +1,49 @@
 // Test data, independent of data/: the tests keep passing when the resume content changes.
+import { randomBytes } from 'node:crypto';
+import { writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { deflateSync } from 'node:zlib';
 import type { Experience, Resume } from '../../src/schema/index.ts';
+
+// A photo as the page receives it from scripts/resume-data.ts: a data: URL.
+export const PHOTO_SRC =
+  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAIAAABLbSncAAAAEUlEQVR42mOYtmAnVsQwtCQAUdh7wdq3RugAAAAASUVORK5CYII=';
+
+const crc32 = (bytes: Buffer) => {
+  let crc = ~0;
+  for (const byte of bytes) {
+    crc ^= byte;
+    for (let bit = 0; bit < 8; bit++) crc = (crc >>> 1) ^ (0xedb88320 & -(crc & 1));
+  }
+  return ~crc >>> 0;
+};
+
+const pngChunk = (type: string, data: Buffer) => {
+  const typed = Buffer.concat([Buffer.from(type), data]);
+  const length = Buffer.alloc(4);
+  length.writeUInt32BE(data.length);
+  const crc = Buffer.alloc(4);
+  crc.writeUInt32BE(crc32(typed));
+  return Buffer.concat([length, typed, crc]);
+};
+
+// A valid PNG of random pixels, which do not compress: about 3 bytes per pixel.
+export const createHeavyPhotoSrc = (size = 480) => {
+  const header = Buffer.alloc(13);
+  header.writeUInt32BE(size, 0);
+  header.writeUInt32BE(size, 4);
+  header.set([8, 2, 0, 0, 0], 8);
+  const rows = Buffer.concat(
+    Array.from({ length: size }, () => Buffer.concat([Buffer.from([0]), randomBytes(size * 3)])),
+  );
+  const png = Buffer.concat([
+    Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
+    pngChunk('IHDR', header),
+    pngChunk('IDAT', deflateSync(rows)),
+    pngChunk('IEND', Buffer.alloc(0)),
+  ]);
+  return `data:image/png;base64,${png.toString('base64')}`;
+};
 
 const createJob = (index: number): Experience => ({
   role: `Paper Salesman ${index}`,
@@ -22,6 +66,7 @@ export const resume = {
     showPrompt: true,
     qr: { url: 'https://example.com/jane', label: 'Online profile' },
   },
+  photo: { src: PHOTO_SRC, alt: 'Portrait of Jane' },
   name: 'Jane Q. Tester',
   title: 'Sales Manager',
   tag: 'Paper · Sales',
@@ -110,6 +155,12 @@ export const longSidebarResume = {
 
 // Characters missing from the fonts in assets/fonts. A → in a rich text field becomes a drawn
 // arrow, but it stays a character in a plain text field such as role.
+// The resume as a data file holds it: the photo is a file next to it (scripts/resume-data.ts).
+export const PHOTO_FILE = 'photo.png';
+export const writePhotoFile = (dir: string) =>
+  writeFileSync(join(dir, PHOTO_FILE), Buffer.from(PHOTO_SRC.slice(PHOTO_SRC.indexOf(',') + 1), 'base64'));
+export const resumeData = { ...resume, photo: { src: PHOTO_FILE, alt: 'Portrait of Jane' } } satisfies Resume;
+
 export const fallbackFontsResume = {
   ...resume,
   experience: [{ role: 'Sales → Management', company: 'Dunder Mifflin', start: '2001', bullets: ['▸ Top seller 🏆'] }],

@@ -5,28 +5,12 @@ import {
   formatDateRange,
   formatRichText,
   formatUrlForDisplay,
-  renderDrawnLabelAttributes,
   renderIfPresent,
   renderMarkedList,
   renderTagList,
 } from './html-fragments.ts';
 import { getLabels, type Labels } from './labels.ts';
 import type { Block } from './pagination.ts';
-
-const PROMPT_LINE = `<div class="prompt" ${DECORATION_ATTRIBUTES}><span class="prompt__tilde">~</span> $ whoami<span class="prompt__cursor"></span></div>`;
-
-// Name, title and summary, at the top of the first page, outside the flow of the main column: they
-// are read before the sidebar, which is read before the sections (src/render/pagination.ts).
-export const buildHeader = (resume: Resume) => `
-    <header class="header${resume.settings.showPrompt ? ' header--with-prompt' : ''}">
-      <h1 class="header__name">${escapeHtml(resume.name)}</h1>
-      ${resume.settings.showPrompt ? PROMPT_LINE : ''}
-      <div class="header__headline">
-        <span class="header__title">${escapeHtml(resume.title)}</span>
-        ${renderIfPresent(resume.tag, (tag) => `<span class="header__tag" ${renderDrawnLabelAttributes(tag)}>${escapeHtml(tag)}</span>`)}
-      </div>
-      ${renderIfPresent(resume.summary, (summary) => `<p class="header__summary">${formatRichText(summary)}</p>`)}
-    </header>`;
 
 const formatSectionNumber = (number: number) => String(number).padStart(2, '0');
 

@@ -34,7 +34,7 @@ export const ResumeSchema = v.pipe(
 export type Resume = v.InferOutput<typeof ResumeSchema>;
 export type { Education, EducationItem } from './education.ts';
 export type { Experience } from './experience.ts';
-export type { Contact } from './profile.ts';
+export type { Contact, Photo } from './profile.ts';
 export type { Project } from './projects.ts';
 export type { Qr } from './settings.ts';
 export type { Language, StackGroup, Technology } from './skills.ts';
