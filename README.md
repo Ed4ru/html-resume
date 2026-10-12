@@ -62,13 +62,13 @@ overflows, the preview and `pnpm pdf` warn about it.
 ## ATS compatibility
 
 The PDF text is meant to be read by applicant tracking systems: static fonts, with a real italic, a reading order that
-puts the name, title, summary and contact details (`label: value`), then the sidebar, then the main column, real bullets
-and hyphens under the drawn markers, transparent punctuation between tags and after labels, decorations drawn as paths
-without text (section numbers, `//`, the `whoami` line, the tag, the QR code caption and the sidebar of the next pages),
-and spacing that keeps words whole for PDF extractors. The tests read the PDF as an ATS does. Each choice is explained
-in comments in `styles/`, `src/` and `scripts/pdf.ts`. pdfminer.six, which some Python resume parsers use, reads the
-header in order but mixes the sidebar with the main column: a page with two columns side by side cannot be read
-otherwise by it.
+puts the name, title, summary and contact details (`label: value`), then the sidebar, then the main column, dates right
+after their title, real bullets and hyphens under the drawn markers, transparent punctuation between tags and after
+labels, decorations drawn as paths without text (section numbers, `//`, the `whoami` line, the tag, the QR code caption
+and the sidebar of the next pages), and spacing that keeps words whole for PDF extractors. The tests read the PDF as an
+ATS does. Each choice is explained in comments in `styles/`, `src/` and `scripts/pdf.ts`. pdfminer.six, which some
+Python resume parsers use, reads the header in order but mixes the sidebar with the main column: a page with two columns
+side by side cannot be read otherwise by it.
 
 ## Contributing
 

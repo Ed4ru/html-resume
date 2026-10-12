@@ -109,11 +109,13 @@
   gap: 3px;
 }
 
+/* The dates follow the title instead of being aligned right: on a page with no text in the sidebar,
+   macOS Preview (PDFKit) reads an empty gap under right-aligned dates as two columns, and reads the
+   dates after the bullets of a short entry. Neither a drawn line nor spaces fill that gap for it. */
 .entry__head {
   display: flex;
-  justify-content: space-between;
   align-items: baseline;
-  gap: 12px;
+  column-gap: 14px;
 }
 
 .entry__title {

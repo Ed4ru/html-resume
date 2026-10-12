@@ -232,6 +232,23 @@ describe('header', () => {
   });
 });
 
+describe('entries', () => {
+  // macOS Preview (PDFKit) reads right-aligned dates apart from a short entry on the next pages.
+  // Not testable in CI: PDFKit only runs on macOS.
+  it('puts each date right after its title', async () => {
+    await preview.render(resume);
+    const gaps = await preview.page.$$eval('#cv .entry__head', (heads) =>
+      heads.flatMap((head) => {
+        const dates = head.querySelector('.entry__dates');
+        const title = dates?.previousElementSibling;
+        return dates && title ? [dates.getBoundingClientRect().left - title.getBoundingClientRect().right] : [];
+      }),
+    );
+    expect(gaps.length).toBeGreaterThan(0);
+    for (const gap of gaps) expect(gap).toBeLessThanOrEqual(14.5);
+  });
+});
+
 describe('list separators', () => {
   it('change no size: the tags and technologies look the same', async () => {
     await preview.render(resume);
