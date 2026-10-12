@@ -16,9 +16,10 @@ const renderContactValue = (contact: Contact) =>
     ? `<a class="contact__link${contact.accent ? ' contact__link--accent' : ''}" href="${escapeHtml(contact.href)}">${escapeHtml(contact.value)}</a>`
     : `<span>${escapeHtml(contact.value)}</span>`;
 
-// Read by ATS parsers as "email: jane@example.com", one per line, right after the summary.
+// Read by ATS parsers as "email: jane@example.com", one per line, right after the summary. The space is
+// part of the separator: the label ends close to its value, and macOS Preview would read no space there.
 const renderContact = (contact: Contact) =>
-  `<span class="contact__label">${escapeHtml(contact.label)}${renderListSeparator(':')}</span>${renderContactValue(contact)}`;
+  `<span class="contact__label">${escapeHtml(contact.label)}${renderListSeparator(': ')}</span>${renderContactValue(contact)}`;
 
 const renderPhoto = (resume: Resume) =>
   renderIfPresent(

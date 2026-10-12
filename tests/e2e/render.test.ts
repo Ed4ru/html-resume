@@ -208,6 +208,22 @@ describe('header', () => {
     expect(nameLeft).toBeLessThan(sidebarRight);
   });
 
+  // pdfminer.six reads a label apart from its value when they are more than about two characters
+  // apart. Not testable in CI: pdfminer is a Python library, outside pnpm install.
+  it('ends each contact label right before its value', async () => {
+    await preview.render(resume);
+    // The extent of the text, not of the label element, which the grid can stretch.
+    const gaps = await preview.page.$$eval('.masthead__contact .contact__label', (labels) =>
+      labels.map((label) => {
+        const range = document.createRange();
+        range.selectNodeContents(label);
+        return label.nextElementSibling!.getBoundingClientRect().left - range.getBoundingClientRect().right;
+      }),
+    );
+    expect(gaps.length).toBe(resume.contact.length);
+    for (const gap of gaps) expect(gap).toBeLessThanOrEqual(8.5);
+  });
+
   it('warns about a photo over 500 KB, and still renders', async () => {
     await preview.render({ ...resume, photo: { src: createHeavyPhotoSrc() } });
     expect(await preview.page.$eval('.toolbar__name', (element) => element.textContent)).toContain('Photo too heavy');

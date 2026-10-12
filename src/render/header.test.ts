@@ -52,7 +52,7 @@ describe('photo', () => {
 describe('contact details', () => {
   it('reads each one as "label: value"', () => {
     expect(render()).toContain(
-      `<span class="contact__label">city${renderListSeparator(':')}</span><span>Scranton, PA</span>`,
+      `<span class="contact__label">city${renderListSeparator(': ')}</span><span>Scranton, PA</span>`,
     );
   });
 

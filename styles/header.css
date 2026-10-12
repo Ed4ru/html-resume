@@ -87,23 +87,30 @@
   border-radius: 3px;
 }
 
+/* pdfminer.six, which many Python resume parsers use, groups lines into one block only when they are
+   less than half a line height apart; looser, it mixes the summary with the contact details. */
 .header__summary {
   margin-top: 4px;
   font-size: 11.5px;
-  line-height: 1.6;
+  line-height: 1.45;
   color: var(--text);
   text-wrap: pretty;
 }
 
+/* Each label ends right before its value: pdfminer.six splits a line where two characters are more
+   than about two characters apart, and read "city:" apart from "Scranton, PA" with left-aligned
+   labels. Rows close enough to form one block, for the same reason as the summary. */
 .contact {
   display: grid;
-  grid-template-columns: 40px auto;
+  grid-template-columns: max-content auto;
   column-gap: 8px;
-  row-gap: 6px;
+  row-gap: 3px;
   font-size: 11px;
+  line-height: 1.4;
 }
 
 .contact__label {
+  justify-self: end;
   font-family: var(--mono);
   font-size: 10px;
   color: var(--muted);

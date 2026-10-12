@@ -66,7 +66,9 @@ puts the name, title, summary and contact details (`label: value`), then the sid
 and hyphens under the drawn markers, transparent punctuation between tags and after labels, decorations drawn as paths
 without text (section numbers, `//`, the `whoami` line, the tag, the QR code caption and the sidebar of the next pages),
 and spacing that keeps words whole for PDF extractors. The tests read the PDF as an ATS does. Each choice is explained
-in comments in `styles/`, `src/` and `scripts/pdf.ts`.
+in comments in `styles/`, `src/` and `scripts/pdf.ts`. pdfminer.six, which some Python resume parsers use, reads the
+header in order but mixes the sidebar with the main column: a page with two columns side by side cannot be read
+otherwise by it.
 
 ## Contributing
 
