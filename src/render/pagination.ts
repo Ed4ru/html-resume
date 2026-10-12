@@ -13,7 +13,8 @@ export interface Block {
   keepWithNext?: boolean;
 }
 
-interface Sidebars {
+interface PageParts {
+  firstPageHeader: string;
   firstPageSidebar: string;
   renderContinuationSidebar: (pageNumber: number) => string;
 }
@@ -27,13 +28,17 @@ const createBlockElement = (block: Block) => {
   return element;
 };
 
-const appendPage = (container: HTMLElement, sidebarHtml: string, isContinuation: boolean) => {
+// Chrome writes the text in the order of the DOM, which ATS parsers read: the header of the first
+// page, then the sidebar, then the main column. A page that continues a section thus follows the
+// previous one, with no sidebar in between. styles/layout.css places them in the grid.
+const appendPage = (container: HTMLElement, sidebarHtml: string, headerHtml?: string) => {
   const page = document.createElement('section');
   page.className = 'page';
   page.innerHTML = `
     <div class="page__layout">
-      <main class="page__main"><div class="page__flow"></div></main>
-      <aside class="page__sidebar${isContinuation ? ' page__sidebar--continued' : ''}">${sidebarHtml}</aside>
+      ${headerHtml ? `<div class="page__header">${headerHtml}</div>` : ''}
+      <aside class="page__sidebar${headerHtml ? '' : ' page__sidebar--continued'}">${sidebarHtml}</aside>
+      <main class="page__main${headerHtml ? ' page__main--after-header' : ''}"><div class="page__flow"></div></main>
     </div>`;
   container.append(page);
   return page;
@@ -104,11 +109,11 @@ const writePageTotals = (container: HTMLElement) => {
 export const paginateIntoPages = (
   container: HTMLElement,
   blocks: readonly Block[],
-  { firstPageSidebar, renderContinuationSidebar }: Sidebars,
+  { firstPageHeader, firstPageSidebar, renderContinuationSidebar }: PageParts,
 ) => {
-  let page = appendPage(container, firstPageSidebar, false);
+  let page = appendPage(container, firstPageSidebar, firstPageHeader);
   const startNextPage = () => {
-    page = appendPage(container, renderContinuationSidebar(container.children.length + 1), true);
+    page = appendPage(container, renderContinuationSidebar(container.children.length + 1));
   };
 
   // Elements that do not fit go back to the front of the queue, to be laid out on the next page.

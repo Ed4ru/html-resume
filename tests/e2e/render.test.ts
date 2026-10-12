@@ -106,6 +106,17 @@ describe('pagination', () => {
     );
   });
 
+  it('shows the header on the first page only, before the sidebar in the DOM', async () => {
+    await preview.render(manyJobsResume);
+    const pages = await preview.page.$$eval('#cv .page__layout', (layouts) =>
+      layouts.map((layout) => [...layout.children].map((child) => child.className.split(' ')[0])),
+    );
+
+    expect(pages.length).toBeGreaterThanOrEqual(3);
+    expect(pages[0]).toEqual(['page__header', 'page__sidebar', 'page__main']);
+    for (const page of pages.slice(1)) expect(page).toEqual(['page__sidebar', 'page__main']);
+  });
+
   it('keeps every entry', async () => {
     await preview.render(manyJobsResume);
     const entryCount = await preview.page.$$eval('#cv .entry:not(.entry--continued)', (entries) => entries.length);

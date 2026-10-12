@@ -17,7 +17,7 @@ afterEach(async () => {
 // renderers, a first page and a next page, then measures every drawn element and its parent before and
 // after drawing.
 const MEASURE_DRAWING = `async (resume) => {
-  const { buildMainColumnBlocks } = await import('/src/render/main-column.ts');
+  const { buildHeader, buildMainColumnBlocks } = await import('/src/render/main-column.ts');
   const { renderContinuationSidebar, renderFirstPageSidebar } = await import('/src/render/sidebar.ts');
   const { drawMarkedText } = await import('/src/render/drawn-text.ts');
   const createPage = (mainHtml, sidebarHtml, sidebarModifier) => {
@@ -28,7 +28,11 @@ const MEASURE_DRAWING = `async (resume) => {
     return page;
   };
   const pages = [
-    createPage(buildMainColumnBlocks(resume).map((block) => block.html).join(''), renderFirstPageSidebar(resume), ''),
+    createPage(
+      buildHeader(resume) + buildMainColumnBlocks(resume).map((block) => block.html).join(''),
+      renderFirstPageSidebar(resume),
+      '',
+    ),
     createPage('', renderContinuationSidebar(resume, 2), 'page__sidebar--continued'),
   ];
   const container = document.getElementById('cv');
