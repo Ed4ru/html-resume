@@ -71,6 +71,9 @@ ATS does. Each choice is explained in comments in `styles/`, `src/` and `scripts
 Python resume parsers use, reads the header in order but mixes the sidebar with the main column: a page with two columns
 side by side cannot be read otherwise by it.
 
+`pnpm pdf` also writes the name, the title and the technologies of `stack` in the PDF metadata (Author, Subject,
+Keywords), which Chrome does not write. The PDF printed from the browser only has its title.
+
 ## Contributing
 
 Issues and pull requests are welcome. For a larger change, open an issue first.
